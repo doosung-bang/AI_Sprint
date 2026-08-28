@@ -1,0 +1,15 @@
+--api token
+KGAT_cb7e5c713f0b4ac1078df44f309933f8
+
+--to use this token, set the kaggle_api_token environment variable:
+export KAGGLE_API_TOKEN=KGAT_cb7e5c713f0b4ac1078df44f309933f8
+
+--or save it to ~/.kaggle/access_token, where the client will read it automatically:
+mkdir -p ~/.kaggle && echo KGAT_cb7e5c713f0b4ac1078df44f309933f8 > ~/.kaggle/access_token && chmod 600 ~/.kaggle/access_token
+
+--Then you can use the client as follows:
+kaggle competitions list
+
+
+--jSON
+{"username":"doosungbang","key":"ba57ae64e4a40feb56ebfbf97b44d672"}
