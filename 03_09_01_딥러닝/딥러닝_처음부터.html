@@ -1,0 +1,1413 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>딥러닝·PyTorch 처음부터 — 중학생도 알아듣게</title>
+<style>
+:root{
+  --bg:#FDFCF7; --card:#FFFFFF; --soft:#F5F4EF;
+  --ink:#1C1C1C; --muted:#737373; --line:#D4D4D4; --label:#525252;
+  --accent:#1E3A5F; --accent-soft:#E8EDF4;
+  --on-soft:#1E3A5F; --on-accent:#FFFFFF;
+  --good:#16A34A; --good-soft:#E7F5EC;
+  --bad:#B91C1C;  --bad-soft:#FBECEB;
+  --warn:#9A5B00; --warn-soft:#F6EBD8;
+  --blue:#1A5FB4; --blue-soft:#E4EDF9;
+  --serif:"Apple SD Gothic Neo",-apple-system,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",sans-serif;
+  --mono:"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+     font-size:15.5px;line-height:1.78;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:44px 22px 110px}
+h1{font-family:var(--serif);font-size:31px;line-height:1.32;margin:0 0 6px;letter-spacing:-.015em}
+h2{font-family:var(--serif);font-size:23px;margin:64px 0 8px;letter-spacing:-.015em}
+h2 .no{font-family:var(--mono);font-size:13px;color:var(--muted);
+       display:block;letter-spacing:.14em;margin-bottom:5px;font-weight:400}
+h2::after{content:"";display:block;height:2px;background:var(--accent);margin-top:10px}
+h3{font-size:16.5px;margin:34px 0 8px;color:var(--accent);letter-spacing:-.01em}
+h4{font-size:14.5px;margin:22px 0 6px;color:var(--label)}
+p{margin:11px 0}
+code{font-family:var(--mono);font-size:.875em;background:var(--soft);
+     padding:1px 5px;border-radius:3px;border:1px solid var(--line);white-space:nowrap}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted);margin:0 0 26px}
+.lead{font-size:16.5px;color:var(--label);margin:0 0 6px}
+
+/* 비유 상자 */
+.ana{background:var(--blue-soft);border-radius:10px;padding:17px 20px;margin:20px 0;
+     border:1px solid #C9DCF3}
+.ana .t{font-size:12px;font-family:var(--mono);letter-spacing:.11em;color:var(--blue);
+        text-transform:uppercase;margin-bottom:6px}
+.ana p{margin:5px 0;font-size:15px}
+
+/* 못 박기 */
+.nail{background:var(--accent);color:var(--on-accent);border-radius:10px;
+      padding:22px 26px;margin:24px 0}
+.nail .k{font-family:var(--mono);font-size:11px;letter-spacing:.13em;
+         text-transform:uppercase;opacity:.7;margin-bottom:7px}
+.nail .v{font-family:var(--serif);font-size:19.5px;line-height:1.52}
+.nail .s{font-size:14px;opacity:.9;margin-top:10px;line-height:1.68}
+.nail code{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff}
+
+/* 상자 */
+.box{border:1px solid var(--line);border-left:4px solid var(--accent);
+     background:var(--card);border-radius:0 8px 8px 0;padding:15px 19px;margin:18px 0}
+.box.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.box.good{border-left-color:var(--good);background:var(--good-soft)}
+.box.bad{border-left-color:var(--bad);background:var(--bad-soft)}
+.box .t{font-weight:700;font-size:14px;margin-bottom:5px}
+.box p{margin:6px 0;font-size:14.5px}
+
+/* 표 */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card)}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft);color:var(--on-soft);font-weight:700;font-size:12.5px;white-space:nowrap}
+td.n,th.n{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--soft)}
+
+/* 코드 블록 */
+pre{font-family:var(--mono);font-size:13px;line-height:1.65;background:#1C2833;color:#E8EDF4;
+    padding:15px 17px;border-radius:8px;overflow-x:auto;margin:14px 0}
+pre .c{color:#8FA3B8}
+pre .k{color:#7FB3E8}
+pre .s{color:#A8D8A8}
+pre .o{color:#E8C07D}
+pre code{background:none;border:0;padding:0;color:inherit;font-size:inherit;white-space:pre}
+
+/* 그림 */
+figure{margin:22px 0;background:var(--card);border:1px solid var(--line);
+       border-radius:10px;padding:20px 18px 14px}
+figure svg{display:block;max-width:100%;height:auto;margin:0 auto}
+figcaption{font-size:13px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6}
+
+/* 인터랙티브 */
+.lab{background:var(--card);border:1px solid var(--line);border-radius:11px;
+     padding:20px 22px;margin:22px 0}
+.lab .lt{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--muted);
+         text-transform:uppercase;margin-bottom:14px}
+.ctl{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:14px}
+.ctl label{font-size:13.5px;color:var(--label);white-space:nowrap}
+.ctl input[type=range]{flex:1;min-width:180px;accent-color:var(--accent)}
+.val{font-family:var(--mono);font-size:15px;color:var(--accent);font-weight:700;
+     min-width:58px;text-align:right}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.chip{font-family:var(--sans);font-size:12.5px;padding:5px 12px;border-radius:16px;
+      border:1px solid var(--line);background:var(--card);color:var(--label);cursor:pointer}
+.chip.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.verdict{border-radius:8px;padding:13px 16px;font-size:14.5px;line-height:1.6;
+         border:1px solid var(--line);background:var(--soft);transition:.2s}
+.verdict.ok{background:var(--good-soft);border-color:var(--good);color:#14532D}
+.verdict.no{background:var(--bad-soft);border-color:var(--bad);color:#7F1D1D}
+.verdict b{font-weight:700}
+.readout{font-family:var(--mono);font-size:12.5px;color:var(--label);
+         margin-top:10px;line-height:1.75;word-break:break-all}
+
+/* 용어 사전 */
+.gloss{margin:18px 0}
+.gsearch{width:100%;font-family:var(--sans);font-size:14.5px;padding:10px 13px;
+   border:1px solid var(--line);border-radius:8px;background:var(--card);
+   color:var(--ink);margin-bottom:12px}
+.gitem{background:var(--card);border:1px solid var(--line);border-radius:8px;
+       padding:12px 16px;margin-bottom:8px}
+.gitem .w{font-weight:700;font-size:14.5px}
+.gitem .en{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:7px}
+.gitem .d{font-size:14px;color:var(--label);margin-top:3px;line-height:1.65}
+.gcount{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:10px}
+
+.fine{font-size:13px;color:var(--muted);line-height:1.7}
+ul,ol{margin:10px 0;padding-left:23px}li{margin:5px 0}
+hr{border:0;border-top:1px solid var(--line);margin:44px 0}
+.toc{background:var(--soft);border:1px solid var(--line);border-radius:10px;
+     padding:16px 20px;margin:26px 0}
+.toc ol{margin:6px 0;padding-left:20px;font-size:14.5px}
+.toc a{color:var(--accent);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.big{font-family:var(--mono);font-size:26px;color:var(--accent);font-weight:700}
+</style></head><body><div class="wrap">
+
+<h1>딥러닝·PyTorch 처음부터</h1>
+<p class="lead">전공자가 아니어도 알아들을 수 있게, 용어 하나하나부터 다시 정리했습니다.</p>
+<p class="meta">2026-09-07 · 9/3 강의 + 미션 4 범위 전체 · 모든 숫자와 그래프는 실제 PyTorch 2.14.0으로 계산</p>
+
+<div class="toc">
+  <strong style="font-size:14px">차례</strong>
+  <ol>
+    <li><a href="#s1">딥러닝이 대체 뭘 하는 건가</a></li>
+    <li><a href="#s2">텐서 — 숫자를 담는 그릇</a></li>
+    <li><a href="#s3">모양(shape) 바꾸기</a></li>
+    <li><a href="#s4">계산 — 브로드캐스팅과 행렬곱</a></li>
+    <li><a href="#s5">「학습」이란 무엇인가</a></li>
+    <li><a href="#s6">autograd — 미분을 대신 해주는 기계</a></li>
+    <li><a href="#s7">신경망의 부품들</a></li>
+    <li><a href="#s8">학습 루프 5단계</a></li>
+    <li><a href="#s9">용어 사전</a></li>
+    <li><a href="#s10">함수 총정리</a></li>
+  </ol>
+</div>
+
+<h2 id="s1"><span class="no">1부</span>딥러닝이 대체 뭘 하는 건가</h2>
+
+<div class="ana">
+  <div class="t">비유</div>
+  <p>국을 끓이는데 <strong>소금을 얼마나 넣어야 할지 모릅니다.</strong> 방법은 하나입니다. 조금 넣고 → 맛보고 → 짜면 덜 넣고, 싱거우면 더 넣고. 이걸 계속 반복하면 언젠가 딱 맞습니다.</p>
+  <p><strong>딥러닝이 하는 게 정확히 이겁니다.</strong> 「소금의 양」이 <strong>가중치</strong>이고, 「맛보기」가 <strong>손실 계산</strong>이고, 「얼마나 더 넣을지」가 <strong>학습률</strong>입니다.</p>
+</div>
+
+<p>컴퓨터에게 「고양이 사진을 알아봐라」라고 시킬 때, 우리는 <em>규칙을 알려주지 않습니다.</em> 대신 <strong>숫자 수십만 개를 아무렇게나 놓고 시작해서, 틀릴 때마다 조금씩 고치게</strong> 합니다. 그 숫자들이 가중치입니다.</p>
+
+<div class="nail">
+  <div class="k">딥러닝의 전부</div>
+  <div class="v">① 지금 값으로 답을 내본다 → ② 정답과 얼마나 다른지 잰다 → ③ 그 차이를 줄이는 방향으로 값을 조금 옮긴다 → ①로 돌아간다</div>
+  <div class="s">이 세 줄이 전부입니다. 앞으로 나오는 모든 용어는 <strong>이 셋 중 하나를 부르는 이름</strong>입니다. ①=순전파, ②=손실함수, ③=역전파+옵티마이저.</div>
+</div>
+
+<figure>
+<svg viewBox="0 0 700 200" role="img" aria-label="학습 순환 그림">
+  <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L7,3 z" fill="#1E3A5F"/></marker></defs>
+  <rect x="20" y="60" width="140" height="62" rx="9" fill="#E8EDF4" stroke="#1E3A5F"/>
+  <text x="90" y="85" text-anchor="middle" font-size="14" font-weight="700" fill="#1E3A5F">① 답을 내본다</text>
+  <text x="90" y="105" text-anchor="middle" font-size="11.5" fill="#525252">순전파 forward</text>
+
+  <rect x="200" y="60" width="140" height="62" rx="9" fill="#E8EDF4" stroke="#1E3A5F"/>
+  <text x="270" y="85" text-anchor="middle" font-size="14" font-weight="700" fill="#1E3A5F">② 얼마나 틀렸나</text>
+  <text x="270" y="105" text-anchor="middle" font-size="11.5" fill="#525252">손실 loss</text>
+
+  <rect x="380" y="60" width="150" height="62" rx="9" fill="#E8EDF4" stroke="#1E3A5F"/>
+  <text x="455" y="85" text-anchor="middle" font-size="14" font-weight="700" fill="#1E3A5F">③ 어느 쪽으로?</text>
+  <text x="455" y="105" text-anchor="middle" font-size="11.5" fill="#525252">역전파 backward</text>
+
+  <rect x="570" y="60" width="110" height="62" rx="9" fill="#1E3A5F"/>
+  <text x="625" y="85" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">④ 값을 옮긴다</text>
+  <text x="625" y="105" text-anchor="middle" font-size="11.5" fill="#C9DCF3">옵티마이저</text>
+
+  <line x1="162" y1="91" x2="196" y2="91" stroke="#1E3A5F" stroke-width="1.6" marker-end="url(#ar)"/>
+  <line x1="342" y1="91" x2="376" y2="91" stroke="#1E3A5F" stroke-width="1.6" marker-end="url(#ar)"/>
+  <line x1="532" y1="91" x2="566" y2="91" stroke="#1E3A5F" stroke-width="1.6" marker-end="url(#ar)"/>
+  <path d="M625,128 L625,165 L90,165 L90,128" fill="none" stroke="#1E3A5F" stroke-width="1.6"
+        stroke-dasharray="5,4" marker-end="url(#ar)"/>
+  <text x="357" y="182" text-anchor="middle" font-size="12" fill="#737373">이걸 수백~수만 번 반복한다</text>
+</svg>
+<figcaption>딥러닝의 학습 한 바퀴. 미션 4 「심화 5. 학습 루프」가 이 그림을 코드로 옮기는 문제입니다.</figcaption>
+</figure>
+
+<h2 id="s2"><span class="no">2부</span>텐서 — 숫자를 담는 그릇</h2>
+
+<p><strong>텐서(tensor)</strong>는 어렵게 생긴 이름이지만 뜻은 단순합니다. <strong>「숫자를 규칙적으로 담은 상자」</strong>입니다. 엑셀 표를 떠올리면 거의 맞습니다.</p>
+
+<figure>
+<svg viewBox="0 0 700 230" role="img" aria-label="텐서 차원 그림">
+  <text x="60" y="24" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1E3A5F">0차원</text>
+  <text x="60" y="40" text-anchor="middle" font-size="11" fill="#737373">스칼라</text>
+  <rect x="42" y="52" width="36" height="36" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/>
+  <text x="60" y="76" text-anchor="middle" font-size="13" fill="#1C1C1C">7</text>
+  <text x="60" y="112" text-anchor="middle" font-size="11" font-family="monospace" fill="#525252">shape ()</text>
+  <text x="60" y="130" text-anchor="middle" font-size="11" fill="#737373">「기온 7도」</text>
+
+  <text x="215" y="24" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1E3A5F">1차원</text>
+  <text x="215" y="40" text-anchor="middle" font-size="11" fill="#737373">벡터 · 줄</text>
+  <g>
+    <rect x="155" y="52" width="36" height="36" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="195" y="52" width="36" height="36" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="235" y="52" width="36" height="36" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <text x="173" y="76" text-anchor="middle" font-size="13">7</text>
+    <text x="213" y="76" text-anchor="middle" font-size="13">9</text>
+    <text x="253" y="76" text-anchor="middle" font-size="13">4</text>
+  </g>
+  <text x="215" y="112" text-anchor="middle" font-size="11" font-family="monospace" fill="#525252">shape (3,)</text>
+  <text x="215" y="130" text-anchor="middle" font-size="11" fill="#737373">「사흘치 기온」</text>
+
+  <text x="400" y="24" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1E3A5F">2차원</text>
+  <text x="400" y="40" text-anchor="middle" font-size="11" fill="#737373">행렬 · 표</text>
+  <g>
+    <rect x="340" y="52" width="36" height="30" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="380" y="52" width="36" height="30" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="420" y="52" width="36" height="30" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="340" y="86" width="36" height="30" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="380" y="86" width="36" height="30" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="420" y="86" width="36" height="30" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/>
+  </g>
+  <text x="400" y="136" text-anchor="middle" font-size="11" font-family="monospace" fill="#525252">shape (2, 3)</text>
+  <text x="400" y="154" text-anchor="middle" font-size="11" fill="#737373">「두 도시 × 사흘」</text>
+
+  <text x="590" y="24" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1E3A5F">3차원</text>
+  <text x="590" y="40" text-anchor="middle" font-size="11" fill="#737373">상자</text>
+  <g opacity=".45">
+    <rect x="545" y="46" width="80" height="58" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/></g>
+  <g opacity=".7">
+    <rect x="553" y="54" width="80" height="58" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/></g>
+  <rect x="561" y="62" width="80" height="58" rx="4" fill="#E8EDF4" stroke="#1E3A5F"/>
+  <line x1="588" y1="62" x2="588" y2="120" stroke="#1E3A5F" stroke-width=".8"/>
+  <line x1="615" y1="62" x2="615" y2="120" stroke="#1E3A5F" stroke-width=".8"/>
+  <line x1="561" y1="91" x2="641" y2="91" stroke="#1E3A5F" stroke-width=".8"/>
+  <text x="590" y="140" text-anchor="middle" font-size="11" font-family="monospace" fill="#525252">shape (3, 2, 3)</text>
+  <text x="590" y="158" text-anchor="middle" font-size="11" fill="#737373">「사흘치 표 3장」</text>
+
+  <text x="350" y="200" text-anchor="middle" font-size="12.5" fill="#1C1C1C">
+    차원이 하나 늘 때마다 <tspan font-weight="700">「그게 여러 개 있다」</tspan>는 뜻이 붙는다</text>
+  <text x="350" y="219" text-anchor="middle" font-size="11.5" fill="#737373">
+    숫자 → 숫자가 여러 개 → 줄이 여러 개 → 표가 여러 장</text>
+</svg>
+<figcaption>차원(dimension)은 「괄호를 몇 번 여는가」와 같습니다. <code>[[1,2],[3,4]]</code>는 괄호가 두 겹이니 2차원.</figcaption>
+</figure>
+
+<h3>shape 읽는 법 — 이것만 익히면 절반은 끝납니다</h3>
+
+<p><strong>shape은 「각 방향으로 몇 개인가」를 바깥부터 순서대로 적은 것</strong>입니다.</p>
+
+<div class="box">
+  <div class="t"><code>shape (3, 4)</code> 를 읽으면</div>
+  <p><strong>「줄이 3개, 각 줄에 숫자가 4개」</strong> → 총 12개. 엑셀로 치면 3행 4열입니다.</p>
+  <p><code>shape (2, 3, 4)</code> 는 <strong>「(3,4)짜리 표가 2장」</strong> → 총 24개입니다.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">⚠️ 초보가 가장 많이 헷갈리는 것 — <code>(3,)</code> 와 <code>(3,1)</code> 은 다릅니다</div>
+  <p><code>(3,)</code> 는 <strong>숫자 3개가 한 줄로 늘어선 것</strong>입니다. <code>[7, 9, 4]</code></p>
+  <p><code>(3,1)</code> 은 <strong>줄이 3개인데 각 줄에 숫자가 1개</strong>입니다. <code>[[7], [9], [4]]</code></p>
+  <p>담긴 숫자는 똑같이 3개인데 <strong>모양이 다릅니다.</strong> 그리고 이 차이 때문에 계산 결과가 통째로 달라집니다 — 4부에서 실제 사례를 보여드립니다.</p>
+</div>
+
+<h3>텐서 만드는 함수들</h3>
+<div class="scroll"><table>
+<thead><tr><th class="n">함수</th><th>무엇을 만드나</th><th class="n">예시 → 결과</th></tr></thead>
+<tbody>
+<tr><td class="n">torch.tensor([...])</td><td>내가 적은 숫자 그대로</td><td class="n">tensor([1.,2.]) → shape (2,)</td></tr>
+<tr><td class="n">torch.arange(n)</td><td>0부터 n-1까지 순서대로<br><span class="fine">⚠️ 기본이 <strong>정수</strong>입니다</span></td><td class="n">arange(6) → [0,1,2,3,4,5]</td></tr>
+<tr><td class="n">torch.zeros(2,3)</td><td>전부 0</td><td class="n">shape (2,3), 값 전부 0</td></tr>
+<tr><td class="n">torch.ones(2,3)</td><td>전부 1</td><td class="n">shape (2,3), 값 전부 1</td></tr>
+<tr><td class="n">torch.full((2,3), 7)</td><td>전부 내가 정한 값</td><td class="n">값 전부 7</td></tr>
+<tr><td class="n">torch.randn(3,4)</td><td>무작위 숫자 (평균 0)</td><td class="n">가중치 초기값에 씀</td></tr>
+<tr><td class="n">torch.linspace(0,1,100)</td><td>0부터 1까지 100등분</td><td class="n">그래프 x축 만들 때</td></tr>
+</tbody></table></div>
+
+<h3>dtype — 숫자의 「종류」</h3>
+<p>같은 3이라도 컴퓨터는 <strong>정수 3</strong>과 <strong>소수 3.0</strong>을 다르게 저장합니다. 그 종류를 <strong>dtype</strong>이라고 합니다.</p>
+
+<div class="scroll"><table>
+<thead><tr><th class="n">dtype</th><th>뜻</th><th>어디에 쓰나</th></tr></thead>
+<tbody>
+<tr><td class="n">torch.float32</td><td>소수 (기본)</td><td><strong>딥러닝의 거의 모든 계산.</strong> 미분이 되려면 소수여야 합니다</td></tr>
+<tr><td class="n">torch.int64 (long)</td><td>정수</td><td><strong>정답 라벨</strong> (0번 고양이 / 1번 개). 「몇 번째」는 소수일 수 없으니까</td></tr>
+<tr><td class="n">torch.bool</td><td>참/거짓</td><td>조건으로 걸러낼 때</td></tr>
+</tbody></table></div>
+
+<div class="box bad">
+  <div class="t">여기서 미션 4 「기초 1」이 걸립니다</div>
+  <p><code>torch.arange(12)</code>는 <strong>정수</strong>를 만듭니다. 그런데 확인 셀은 <code>float32</code>를 요구합니다. 모양은 맞는데 dtype에서 떨어지는 이유가 이것입니다.</p>
+  <p>바꾸는 방법은 두 가지 — 만들 때 지정하거나, 만든 뒤 <code>.float()</code>로 바꾸거나.</p>
+</div>
+
+<h2 id="s3"><span class="no">3부</span>모양(shape) 바꾸기</h2>
+
+<p>딥러닝 코드에서 <strong>오류의 절반 이상이 「모양이 안 맞는다」</strong>입니다. 그래서 모양을 바꾸는 함수를 따로 익힙니다.</p>
+
+<div class="ana">
+  <div class="t">비유</div>
+  <p>사탕 12개가 있습니다. <strong>개수는 그대로 두고 담는 방식만</strong> 바꿀 수 있습니다 — 3개짜리 봉지 4개, 4개짜리 봉지 3개, 2×6 상자… <strong>이게 reshape입니다.</strong></p>
+  <p>다만 <strong>12개를 5개씩 나눌 수는 없습니다.</strong> 총 개수가 안 맞으면 오류가 납니다.</p>
+</div>
+
+<h3>reshape — 총 개수를 유지하며 다시 담기</h3>
+<pre><code><span class="c"># 12개를 (3,4)로 → 다시 (2,6)으로</span>
+t = torch.arange(12)        <span class="c"># shape (12,)</span>
+t.reshape(3, 4)             <span class="c"># shape (3,4)  — 3×4 = 12 ✓</span>
+t.reshape(2, 6)             <span class="c"># shape (2,6)  — 2×6 = 12 ✓</span>
+t.reshape(5, 3)             <span class="c"># ✗ 오류! 5×3 = 15 ≠ 12</span>
+t.reshape(-1, 4)            <span class="c"># -1은 «알아서 계산해» → (3,4)</span></code></pre>
+
+<div class="box">
+  <div class="t"><code>-1</code>의 뜻</div>
+  <p><strong>「나머지는 네가 계산해」</strong>입니다. 12개를 4개씩 담으라면 자동으로 3줄이 됩니다. 데이터 개수가 매번 달라지는 실전에서 아주 많이 씁니다.</p>
+</div>
+
+<h3>squeeze / unsqueeze — 「1짜리 차원」을 없애고 만들기</h3>
+
+<p>가장 헷갈리는 둘입니다. 뜻만 잡으면 쉽습니다.</p>
+
+<figure>
+<svg viewBox="0 0 700 250" role="img" aria-label="squeeze unsqueeze 그림">
+  <text x="350" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#1E3A5F">
+    크기 1인 차원 = 「봉지가 한 겹 더 씌워진 것」</text>
+
+  <text x="120" y="58" text-anchor="middle" font-size="12" font-family="monospace" fill="#525252">shape (3, 1, 4)</text>
+  <g>
+    <rect x="45" y="70" width="150" height="34" rx="5" fill="none" stroke="#B91C1C" stroke-width="1.6" stroke-dasharray="4,3"/>
+    <rect x="52" y="76" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="86" y="76" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="120" y="76" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="154" y="76" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="45" y="112" width="150" height="34" rx="5" fill="none" stroke="#B91C1C" stroke-width="1.6" stroke-dasharray="4,3"/>
+    <rect x="52" y="118" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="86" y="118" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="120" y="118" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="154" y="118" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="45" y="154" width="150" height="34" rx="5" fill="none" stroke="#B91C1C" stroke-width="1.6" stroke-dasharray="4,3"/>
+    <rect x="52" y="160" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="86" y="160" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="120" y="160" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="154" y="160" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+  </g>
+  <text x="120" y="208" text-anchor="middle" font-size="11" fill="#B91C1C">빨간 봉지 = 크기 1인 차원</text>
+  <text x="120" y="224" text-anchor="middle" font-size="11" fill="#737373">한 봉지에 줄이 «1개»씩만 들어있다</text>
+
+  <text x="285" y="132" text-anchor="middle" font-size="13" font-weight="700" fill="#16A34A">squeeze()</text>
+  <path d="M245,140 L325,140" stroke="#16A34A" stroke-width="2" marker-end="url(#ar2)"/>
+  <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L7,3 z" fill="#16A34A"/></marker>
+    <marker id="ar3" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L7,3 z" fill="#9A5B00"/></marker></defs>
+  <text x="285" y="158" text-anchor="middle" font-size="11" fill="#525252">봉지를 벗긴다</text>
+
+  <text x="285" y="182" text-anchor="middle" font-size="13" font-weight="700" fill="#9A5B00">unsqueeze()</text>
+  <path d="M325,190 L245,190" stroke="#9A5B00" stroke-width="2" marker-end="url(#ar3)"/>
+  <text x="285" y="208" text-anchor="middle" font-size="11" fill="#525252">봉지를 씌운다</text>
+
+  <text x="480" y="58" text-anchor="middle" font-size="12" font-family="monospace" fill="#525252">shape (3, 4)</text>
+  <g>
+    <rect x="412" y="76" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="446" y="76" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="480" y="76" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="514" y="76" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="412" y="118" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="446" y="118" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="480" y="118" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="514" y="118" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="412" y="160" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="446" y="160" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="480" y="160" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="514" y="160" width="30" height="22" rx="3" fill="#E8EDF4" stroke="#1E3A5F"/>
+  </g>
+  <text x="480" y="208" text-anchor="middle" font-size="11" fill="#737373">봉지 없이 줄 3개가 그대로</text>
+  <text x="480" y="224" text-anchor="middle" font-size="11" fill="#737373">담긴 숫자 12개는 «똑같다»</text>
+</svg>
+<figcaption>숫자는 하나도 안 바뀌고 <strong>포장만</strong> 바뀝니다. 그런데 이 포장이 계산 결과를 바꿉니다(4부).</figcaption>
+</figure>
+
+<div class="scroll"><table>
+<thead><tr><th class="n">함수</th><th>하는 일</th><th class="n">예</th><th>주의</th></tr></thead>
+<tbody>
+<tr><td class="n">.squeeze()</td><td>크기 1인 차원을 <strong>전부</strong> 없앰</td><td class="n">(3,1,4) → (3,4)<br>(1,5,1) → (5,)</td><td><strong>전부</strong>입니다. 하나만 없애려면 <code>.squeeze(1)</code>처럼 자리를 지정</td></tr>
+<tr><td class="n">.unsqueeze(d)</td><td>d번 자리에 크기 1인 차원을 <strong>하나</strong> 끼움</td><td class="n">(3,4) → unsqueeze(0) → (1,3,4)<br>(3,4) → unsqueeze(2) → (3,4,1)</td><td>맨 뒤에 붙이려면 <code>-1</code>을 써도 됩니다</td></tr>
+<tr><td class="n">.flatten()</td><td>전부 한 줄로 폄</td><td class="n">(3,1,4) → (12,)</td><td>모델 마지막에 자주 씀</td></tr>
+<tr><td class="n">.reshape(a,b)</td><td>총 개수 유지하고 다시 담기</td><td class="n">(12,) → (3,4)</td><td>곱해서 원래 개수가 돼야 함</td></tr>
+</tbody></table></div>
+
+<h3>cat 과 stack — 붙이는 방법이 두 가지</h3>
+
+<p>이 둘의 차이가 미션 4 「기초 5」의 핵심입니다.</p>
+
+<figure>
+<svg viewBox="0 0 700 300" role="img" aria-label="cat vs stack 비교">
+  <text x="350" y="20" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1E3A5F">
+    (2,3) 짜리 두 개를 합칠 때</text>
+
+  <g>
+    <text x="70" y="52" text-anchor="middle" font-size="11.5" font-family="monospace" fill="#525252">A (2,3)</text>
+    <rect x="30" y="60" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="58" y="60" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="86" y="60" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="30" y="82" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="58" y="82" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="86" y="82" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <text x="70" y="128" text-anchor="middle" font-size="11.5" font-family="monospace" fill="#525252">B (2,3)</text>
+    <rect x="30" y="136" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="58" y="136" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="86" y="136" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="30" y="158" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="58" y="158" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="86" y="158" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+  </g>
+
+  <text x="230" y="48" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1E3A5F">cat(dim=0)</text>
+  <text x="230" y="64" text-anchor="middle" font-size="11" fill="#737373">아래로 이어 붙임</text>
+  <g>
+    <rect x="190" y="76" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="218" y="76" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="246" y="76" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="190" y="98" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="218" y="98" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="246" y="98" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="190" y="120" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="218" y="120" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="246" y="120" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="190" y="142" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="218" y="142" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="246" y="142" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+  </g>
+  <text x="230" y="182" text-anchor="middle" font-size="13" font-family="monospace" font-weight="700" fill="#1E3A5F">(4, 3)</text>
+  <text x="230" y="200" text-anchor="middle" font-size="11" fill="#737373">줄 수만 2→4</text>
+
+  <text x="400" y="48" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1E3A5F">cat(dim=1)</text>
+  <text x="400" y="64" text-anchor="middle" font-size="11" fill="#737373">옆으로 이어 붙임</text>
+  <g>
+    <rect x="316" y="86" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="344" y="86" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="372" y="86" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="400" y="86" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="428" y="86" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="456" y="86" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="316" y="108" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="344" y="108" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="372" y="108" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="400" y="108" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="428" y="108" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="456" y="108" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+  </g>
+  <text x="400" y="182" text-anchor="middle" font-size="13" font-family="monospace" font-weight="700" fill="#1E3A5F">(2, 6)</text>
+  <text x="400" y="200" text-anchor="middle" font-size="11" fill="#737373">칸 수만 3→6</text>
+
+  <text x="595" y="48" text-anchor="middle" font-size="12.5" font-weight="700" fill="#B91C1C">stack(dim=0)</text>
+  <text x="595" y="64" text-anchor="middle" font-size="11" fill="#737373">겹쳐 «쌓음»</text>
+  <g opacity=".6">
+    <rect x="530" y="80" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="558" y="80" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="586" y="80" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="530" y="102" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="558" y="102" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="586" y="102" width="26" height="20" fill="#F6EBD8" stroke="#9A5B00"/>
+  </g>
+  <g>
+    <rect x="544" y="94" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="572" y="94" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="600" y="94" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="544" y="116" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="572" y="116" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="600" y="116" width="26" height="20" fill="#E8EDF4" stroke="#1E3A5F"/>
+  </g>
+  <text x="595" y="182" text-anchor="middle" font-size="13" font-family="monospace" font-weight="700" fill="#B91C1C">(2, 2, 3)</text>
+  <text x="595" y="200" text-anchor="middle" font-size="11" fill="#B91C1C">차원이 «하나 늘었다»</text>
+
+  <rect x="30" y="228" width="640" height="56" rx="8" fill="#F5F4EF" stroke="#D4D4D4"/>
+  <text x="350" y="250" text-anchor="middle" font-size="13" font-weight="700" fill="#1C1C1C">
+    cat = 있는 차원을 «늘린다» (차원 개수 그대로 2개)</text>
+  <text x="350" y="271" text-anchor="middle" font-size="13" font-weight="700" fill="#B91C1C">
+    stack = 차원을 «새로 만든다» (2개 → 3개)</text>
+</svg>
+<figcaption>구별법: 결과의 <strong>괄호 개수</strong>를 세어 보세요. cat은 그대로, stack은 하나 늘어납니다.</figcaption>
+</figure>
+
+<div class="ana">
+  <div class="t">외우는 법</div>
+  <p><strong>cat</strong>은 「이어붙이기(concatenate)」 — 종이 두 장을 <strong>테이프로 붙여 한 장</strong>으로 만드는 것.</p>
+  <p><strong>stack</strong>은 「쌓기」 — 종이 두 장을 <strong>포개서 두 장짜리 묶음</strong>으로 만드는 것. 장수라는 새 개념이 생깁니다.</p>
+</div>
+
+<h2 id="s4"><span class="no">4부</span>계산 — 브로드캐스팅과 행렬곱</h2>
+
+<h3>원소별 계산 — 같은 자리끼리</h3>
+<p>모양이 같은 텐서끼리 <code>+ - * /</code>를 하면 <strong>같은 자리 숫자끼리</strong> 계산합니다. 쉽습니다.</p>
+<pre><code>[[1, 2],     [[10, 10],     [[11, 12],
+ [3, 4]]  +   [10, 10]]  =   [13, 14]]</code></pre>
+
+<h3>브로드캐스팅 — 모양이 달라도 알아서 맞춰준다</h3>
+
+<p>모양이 다른데도 계산이 되는 경우가 있습니다. PyTorch가 <strong>부족한 쪽을 자동으로 복사해서 늘려주기</strong> 때문입니다. 이걸 <strong>브로드캐스팅</strong>이라고 합니다.</p>
+
+<figure>
+<svg viewBox="0 0 700 200" role="img" aria-label="브로드캐스팅 그림">
+  <text x="350" y="18" text-anchor="middle" font-size="13" font-weight="700" fill="#1E3A5F">
+    (2,3) + (3,) — 짧은 쪽이 «복사되어» 늘어난다</text>
+  <g>
+    <rect x="60" y="46" width="30" height="22" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="92" y="46" width="30" height="22" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="124" y="46" width="30" height="22" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="60" y="70" width="30" height="22" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="92" y="70" width="30" height="22" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <rect x="124" y="70" width="30" height="22" fill="#E8EDF4" stroke="#1E3A5F"/>
+    <text x="107" y="112" text-anchor="middle" font-size="12" font-family="monospace" fill="#525252">(2, 3)</text>
+  </g>
+  <text x="180" y="72" text-anchor="middle" font-size="20" fill="#1E3A5F">+</text>
+  <g>
+    <rect x="212" y="58" width="30" height="22" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="244" y="58" width="30" height="22" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="276" y="58" width="30" height="22" fill="#F6EBD8" stroke="#9A5B00"/>
+    <text x="259" y="112" text-anchor="middle" font-size="12" font-family="monospace" fill="#525252">(3,)</text>
+  </g>
+  <text x="335" y="72" text-anchor="middle" font-size="15" fill="#737373">→</text>
+  <text x="405" y="40" text-anchor="middle" font-size="11.5" fill="#9A5B00">줄을 하나 더 복사</text>
+  <g>
+    <rect x="360" y="46" width="30" height="22" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="392" y="46" width="30" height="22" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="424" y="46" width="30" height="22" fill="#F6EBD8" stroke="#9A5B00"/>
+    <rect x="360" y="70" width="30" height="22" fill="#F6EBD8" stroke="#9A5B00" stroke-dasharray="3,2"/>
+    <rect x="392" y="70" width="30" height="22" fill="#F6EBD8" stroke="#9A5B00" stroke-dasharray="3,2"/>
+    <rect x="424" y="70" width="30" height="22" fill="#F6EBD8" stroke="#9A5B00" stroke-dasharray="3,2"/>
+    <text x="407" y="112" text-anchor="middle" font-size="12" font-family="monospace" fill="#525252">(2, 3) 처럼 취급</text>
+  </g>
+  <text x="480" y="72" text-anchor="middle" font-size="15" fill="#737373">=</text>
+  <g>
+    <rect x="510" y="46" width="30" height="22" fill="#E7F5EC" stroke="#16A34A"/>
+    <rect x="542" y="46" width="30" height="22" fill="#E7F5EC" stroke="#16A34A"/>
+    <rect x="574" y="46" width="30" height="22" fill="#E7F5EC" stroke="#16A34A"/>
+    <rect x="510" y="70" width="30" height="22" fill="#E7F5EC" stroke="#16A34A"/>
+    <rect x="542" y="70" width="30" height="22" fill="#E7F5EC" stroke="#16A34A"/>
+    <rect x="574" y="70" width="30" height="22" fill="#E7F5EC" stroke="#16A34A"/>
+    <text x="557" y="112" text-anchor="middle" font-size="12" font-family="monospace" fill="#525252">(2, 3)</text>
+  </g>
+  <rect x="60" y="136" width="580" height="50" rx="8" fill="#F5F4EF" stroke="#D4D4D4"/>
+  <text x="350" y="157" text-anchor="middle" font-size="12.5" fill="#1C1C1C">
+    규칙: <tspan font-family="monospace">뒤에서부터</tspan> 짝을 맞춰 본다. 숫자가 같거나, 한쪽이 1이면 OK.</text>
+  <text x="350" y="176" text-anchor="middle" font-size="12.5" fill="#1C1C1C">
+    1인 쪽을 상대 크기만큼 <tspan font-weight="700">복사</tspan>한다. 둘 다 1이 아니고 다르면 오류.</text>
+</svg>
+<figcaption>편해 보이지만, 바로 이 「알아서 맞춰주기」가 <strong>가장 위험한 함정</strong>이기도 합니다.</figcaption>
+</figure>
+
+<div class="box bad">
+  <div class="t">☠️ 조용히 틀리는 사고 — 오류도 안 납니다</div>
+  <p>모델의 예측값이 <code>(3,1)</code>이고 정답이 <code>(3,)</code>일 때 빼면 어떻게 될까요? <strong>실제로 돌려본 결과입니다.</strong></p>
+<pre><code><span class="c"># 예측 (3,1) — 세로로 선 3개</span>
+a = torch.tensor([[1.],[2.],[3.]])
+<span class="c"># 정답 (3,) — 가로로 선 3개</span>
+b = torch.tensor([10., 20., 30.])
+
+(a - b).shape   <span class="o">→ torch.Size([3, 3])</span>   <span class="c"># ← 9개!?</span>
+(a - b)
+<span class="o">→ [[ -9., -19., -29.],
+   [ -8., -18., -28.],
+   [ -7., -17., -27.]]</span></code></pre>
+  <p><strong>3개를 빼려 했는데 9개가 나왔습니다.</strong> 세로 3개 × 가로 3개로 모든 짝이 만들어진 겁니다. 그런데 <strong>오류가 안 납니다.</strong> 손실 계산까지 그대로 진행되고, 모델은 엉뚱한 걸 학습합니다.</p>
+  <p><strong>제대로 하려면</strong> 모양을 먼저 맞춰야 합니다 — <code>a.squeeze()</code>로 <code>(3,)</code>을 만들면 결과는 <code>[-9., -18., -27.]</code> 3개가 나옵니다.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">그래서 습관</div>
+  <p>계산이 이상하면 <strong>먼저 <code>.shape</code>을 찍어 보세요.</strong> 「값이 이상하다」의 8할은 「모양이 이상했다」입니다.</p>
+</div>
+
+<h3>행렬곱 — 딥러닝 계산의 심장</h3>
+
+<p><code>*</code> 는 같은 자리끼리 곱하는 것이고, <strong>행렬곱</strong>(<code>@</code> 또는 <code>torch.matmul</code>)은 전혀 다른 계산입니다. <strong>신경망의 층 하나 = 행렬곱 하나</strong>입니다.</p>
+
+<figure>
+<svg viewBox="0 0 700 220" role="img" aria-label="행렬곱 모양 규칙">
+  <text x="350" y="20" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1E3A5F">
+    행렬곱의 모양 규칙 — 「가운데가 만나서 사라진다」</text>
+
+  <rect x="130" y="60" width="120" height="60" rx="6" fill="#E8EDF4" stroke="#1E3A5F" stroke-width="1.5"/>
+  <text x="190" y="88" text-anchor="middle" font-size="15" font-family="monospace" font-weight="700" fill="#1E3A5F">(2, 3)</text>
+  <text x="190" y="107" text-anchor="middle" font-size="11" fill="#525252">앞 텐서</text>
+
+  <text x="285" y="97" text-anchor="middle" font-size="20" fill="#1E3A5F">@</text>
+
+  <rect x="320" y="60" width="120" height="60" rx="6" fill="#E8EDF4" stroke="#1E3A5F" stroke-width="1.5"/>
+  <text x="380" y="88" text-anchor="middle" font-size="15" font-family="monospace" font-weight="700" fill="#1E3A5F">(3, 4)</text>
+  <text x="380" y="107" text-anchor="middle" font-size="11" fill="#525252">뒤 텐서</text>
+
+  <text x="475" y="97" text-anchor="middle" font-size="17" fill="#737373">=</text>
+
+  <rect x="505" y="60" width="120" height="60" rx="6" fill="#E7F5EC" stroke="#16A34A" stroke-width="1.5"/>
+  <text x="565" y="88" text-anchor="middle" font-size="15" font-family="monospace" font-weight="700" fill="#16A34A">(2, 4)</text>
+  <text x="565" y="107" text-anchor="middle" font-size="11" fill="#525252">결과</text>
+
+  <path d="M222,132 Q285,160 348,132" fill="none" stroke="#B91C1C" stroke-width="1.8"/>
+  <text x="285" y="176" text-anchor="middle" font-size="12.5" font-weight="700" fill="#B91C1C">
+    이 둘이 «같아야» 한다 (3 = 3)</text>
+  <text x="285" y="194" text-anchor="middle" font-size="11.5" fill="#B91C1C">다르면 바로 오류 — 딥러닝에서 제일 자주 보는 오류</text>
+
+  <path d="M158,54 Q200,26 540,54" fill="none" stroke="#16A34A" stroke-width="1.4" stroke-dasharray="4,3"/>
+  <path d="M412,54 Q480,30 596,54" fill="none" stroke="#16A34A" stroke-width="1.4" stroke-dasharray="4,3"/>
+  <text x="350" y="46" text-anchor="middle" font-size="11.5" fill="#16A34A">바깥 두 숫자가 결과가 된다</text>
+</svg>
+<figcaption><code>(2,3) @ (3,4) = (2,4)</code>. 가운데 3끼리 만나 사라지고 바깥의 2와 4만 남습니다.</figcaption>
+</figure>
+
+<div class="ana">
+  <div class="t">왜 이 계산을 쓰나</div>
+  <p>「학생 2명 × 과목 3개 점수」 표에, 「과목 3개 × 대학 4곳 반영비율」 표를 곱하면 → <strong>「학생 2명 × 대학 4곳 환산점수」</strong>가 나옵니다. 가운데 「과목 3개」는 계산에 쓰이고 사라집니다.</p>
+  <p>신경망도 똑같습니다. <strong>입력 특징 개수</strong>가 가운데에서 만나 사라지고, <strong>출력 개수</strong>가 남습니다.</p>
+</div>
+
+<div class="scroll"><table>
+<thead><tr><th class="n">기호</th><th>이름</th><th>하는 일</th><th class="n">모양</th></tr></thead>
+<tbody>
+<tr><td class="n">a * b</td><td>원소별 곱</td><td>같은 자리끼리 곱함</td><td class="n">(2,3)*(2,3) → (2,3)</td></tr>
+<tr><td class="n">a @ b<br>torch.matmul(a,b)</td><td>행렬곱</td><td>줄과 칸을 곱해 더함</td><td class="n">(2,3)@(3,4) → (2,4)</td></tr>
+<tr><td class="n">torch.mm(a,b)</td><td>행렬곱 (2차원 전용)</td><td>위와 같으나 2차원만</td><td class="n">(2,3),(3,4) → (2,4)</td></tr>
+</tbody></table></div>
+
+<h2 id="s5"><span class="no">5부</span>「학습」이란 무엇인가</h2>
+
+<h3>가장 단순한 모델 — 직선 하나</h3>
+
+<p>모든 딥러닝의 출발점은 이 식입니다.</p>
+
+<div class="nail">
+  <div class="k">모델의 정체</div>
+  <div class="v">ŷ = w × x + b</div>
+  <div class="s"><strong>x</strong>는 입력(내가 아는 것), <strong>ŷ</strong>는 예측(내가 알고 싶은 것). <strong>w</strong>와 <strong>b</strong>는 <strong>컴퓨터가 찾아야 할 숫자</strong>입니다. 중학교에서 배운 <code>y = ax + b</code>와 완전히 같은 식입니다.</div>
+</div>
+
+<div class="scroll"><table>
+<thead><tr><th class="n">기호</th><th>이름</th><th>중학교 말로</th><th>뜻</th></tr></thead>
+<tbody>
+<tr><td class="n">x</td><td>입력 (input)</td><td>x값</td><td>내가 아는 정보. 공부 시간, 사진 픽셀 등</td></tr>
+<tr><td class="n">ŷ</td><td>예측 (prediction)<br><span class="fine">「와이 햇」이라 읽음</span></td><td>내가 구한 y</td><td>모델이 내놓은 답</td></tr>
+<tr><td class="n">y</td><td>정답 (target/label)</td><td>진짜 y</td><td>실제로 맞는 답</td></tr>
+<tr><td class="n">w</td><td>가중치 (weight)</td><td>기울기 a</td><td><strong>학습으로 찾는 숫자.</strong> x가 결과에 얼마나 세게 영향을 주나</td></tr>
+<tr><td class="n">b</td><td>편향 (bias)</td><td>y절편</td><td><strong>학습으로 찾는 숫자.</strong> 전체를 위아래로 옮기는 값</td></tr>
+</tbody></table></div>
+
+<h3>손실(loss) — 「얼마나 틀렸나」를 숫자 하나로</h3>
+
+<p>예측이 정답과 얼마나 다른지를 <strong>숫자 하나</strong>로 만들어야 「나아졌다/나빠졌다」를 판단할 수 있습니다. 그 숫자가 <strong>손실</strong>입니다.</p>
+
+<h4>MSE — 평균제곱오차 (숫자를 맞히는 문제)</h4>
+<p>실제 계산 과정입니다. 미션 4 「심화 1」에 나오는 바로 그 값입니다.</p>
+
+<div class="scroll"><table>
+<thead><tr><th></th><th class="n">①</th><th class="n">②</th><th class="n">③</th><th>계산</th></tr></thead>
+<tbody>
+<tr><td><strong>예측 ŷ</strong></td><td class="n">2.5</td><td class="n">0.0</td><td class="n">2.0</td><td class="fine">모델이 내놓은 답</td></tr>
+<tr><td><strong>정답 y</strong></td><td class="n">3.0</td><td class="n">-0.5</td><td class="n">2.0</td><td class="fine">진짜 답</td></tr>
+<tr><td><strong>차이 (ŷ-y)</strong></td><td class="n">-0.5</td><td class="n">+0.5</td><td class="n">0.0</td><td class="fine">부호가 섞여 있어 그냥 더하면 0이 됨</td></tr>
+<tr><td><strong>제곱</strong></td><td class="n">0.25</td><td class="n">0.25</td><td class="n">0.00</td><td class="fine">제곱하면 <strong>부호가 사라지고</strong> 큰 오차가 더 커짐</td></tr>
+<tr><td colspan="4"><strong>평균 = MSE</strong></td><td class="n"><strong>0.5 ÷ 3 = 0.166667</strong> (= 1/6)</td></tr>
+</tbody></table></div>
+
+<div class="ana">
+  <div class="t">왜 제곱하나</div>
+  <p>①번은 0.5 모자라고 ②번은 0.5 넘칩니다. 그냥 더하면 <strong>0이 되어 「완벽하다」는 거짓말</strong>이 됩니다. 제곱하면 둘 다 0.25가 되어 「둘 다 틀렸다」가 제대로 드러납니다.</p>
+</div>
+
+<h4>Cross Entropy — 교차 엔트로피 (분류 문제)</h4>
+<p>「고양이냐 개냐」처럼 <strong>고르는 문제</strong>에서는 MSE가 아니라 이걸 씁니다. <strong>정답에 얼마나 확신했는가</strong>를 재는 방식입니다.</p>
+
+<div class="box warn">
+  <div class="t">⚠️ 미션 4 「심화 1·4」의 함정</div>
+  <p><code>nn.CrossEntropyLoss</code>는 <strong>안에 Softmax가 이미 들어 있습니다.</strong> 그래서 모델 출력에 Softmax를 또 붙이면 <strong>두 번 적용되어 학습이 망가집니다.</strong></p>
+  <p>정리 — <strong>모델 마지막에는 아무것도 안 붙이고 날것(logits) 그대로</strong> 내보냅니다. 정답 라벨은 원-핫이 아니라 <strong>정수</strong>(0, 1, 2…)여야 합니다.</p>
+</div>
+
+<h3>경사하강법 — 어느 쪽으로 얼마나 옮길까</h3>
+
+<div class="ana">
+  <div class="t">비유</div>
+  <p><strong>안개 낀 산에서 눈을 감고 골짜기로 내려가는 것</strong>과 같습니다. 앞이 안 보이니, 발밑의 <strong>기울기</strong>를 더듬어 「내려가는 쪽」으로 한 걸음 옮깁니다. 이걸 반복하면 결국 바닥에 닿습니다.</p>
+  <p>여기서 <strong>「한 걸음의 크기」가 학습률(learning rate)</strong>입니다.</p>
+</div>
+
+<div class="lab">
+  <div class="lt">직접 해보기 — 학습률을 바꾸면 어떻게 되나</div>
+  <p style="font-size:14px;margin:0 0 14px;color:var(--label)">
+    골짜기 모양이 <code>y = x²</code>이고 지금 <strong>x = 4</strong>에 서 있습니다. 바닥(x=0)까지 내려가야 합니다.
+    한 걸음의 크기를 바꿔 보세요.</p>
+  <div class="ctl">
+    <label for="lr">학습률</label>
+    <input type="range" id="lr" min="0" step="1" value="1">
+    <span class="val" id="lrv">0.10</span>
+  </div>
+  <svg id="gdsvg" viewBox="0 0 640 260" style="width:100%;height:auto;display:block"></svg>
+  <div class="verdict" id="gdv"></div>
+  <div class="readout" id="gdr"></div>
+</div>
+
+<div class="box">
+  <div class="t">방금 본 것 정리</div>
+  <p><strong>너무 작으면</strong> — 방향은 맞는데 너무 조금씩 가서, 정해진 횟수 안에 바닥에 못 닿습니다.</p>
+  <p><strong>적당하면</strong> — 몇 걸음 만에 바닥에 안착합니다.</p>
+  <p><strong>너무 크면</strong> — 바닥을 <strong>지나쳐 반대편 벽으로 튕겨 올라갑니다.</strong> 그리고 더 크게 튕기고, 더 크게… 결국 <strong>발산</strong>합니다. 손실이 줄기는커녕 폭발합니다.</p>
+</div>
+
+<div class="box good">
+  <div class="t">미션 4 「심화 7」이 묻는 게 이것입니다</div>
+  <p>SGD를 <code>lr=0.01</code> / <code>0.5</code> / <code>10.0</code>으로 돌려 비교하라는 문제입니다. 위 실험에서 본 세 가지 상황이 그대로 나옵니다. <strong>답은 직접 돌려서 그래프로 확인하세요</strong> — 여기 있는 건 원리이지 그 문제의 답이 아닙니다.</p>
+</div>
+
+<h3>실제로 학습되는 과정</h3>
+<p><code>y = 2x + 1</code> 데이터를 주고 w와 b를 찾게 한 <strong>실제 결과</strong>입니다. w는 2, b는 1에 가까워져야 정답입니다.</p>
+
+<div class="scroll"><table id="fitTable">
+<thead><tr><th class="n">몇 번째</th><th class="n">w (정답 2)</th><th class="n">b (정답 1)</th><th class="n">손실</th><th>상태</th></tr></thead>
+<tbody></tbody></table></div>
+<p class="fine">시작할 때 w는 무작위 값이었습니다. 손실이 줄어드는 만큼 w·b가 정답에 가까워지는 게 보입니다.</p>
+
+<h2 id="s6"><span class="no">6부</span>autograd — 미분을 대신 해주는 기계</h2>
+
+<p>5부에서 「기울기를 더듬어 내려간다」고 했습니다. 그 <strong>기울기를 구하는 게 미분</strong>인데, 신경망은 숫자가 수백만 개라 사람이 손으로 못 합니다. <strong>PyTorch가 대신 해줍니다.</strong> 그 기능이 <strong>autograd</strong>입니다.</p>
+
+<h3>3단계면 끝</h3>
+<pre><code><span class="c"># ① 「이 값은 추적해줘」라고 표시</span>
+x = torch.tensor(2.0, requires_grad=<span class="k">True</span>)
+
+<span class="c"># ② 계산한다 (PyTorch가 몰래 «어떻게 계산했는지» 기록해 둔다)</span>
+y = x**2 + 3*x
+
+<span class="c"># ③ 거꾸로 돌려 기울기를 구한다</span>
+y.backward()
+
+x.grad     <span class="o">→ tensor(7.)</span>   <span class="c"># dy/dx = 2x+3, x=2 → 7 ✓</span></code></pre>
+
+<figure>
+<svg viewBox="0 0 700 190" role="img" aria-label="순전파 역전파 그림">
+  <defs><marker id="arf" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L7,3 z" fill="#1E3A5F"/></marker>
+    <marker id="arb" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L7,3 z" fill="#B91C1C"/></marker></defs>
+
+  <circle cx="70" cy="80" r="28" fill="#E8EDF4" stroke="#1E3A5F" stroke-width="1.5"/>
+  <text x="70" y="79" text-anchor="middle" font-size="15" font-family="monospace" font-weight="700" fill="#1E3A5F">x</text>
+  <text x="70" y="94" text-anchor="middle" font-size="10" fill="#525252">2.0</text>
+
+  <rect x="160" y="56" width="90" height="48" rx="7" fill="#fff" stroke="#1E3A5F"/>
+  <text x="205" y="85" text-anchor="middle" font-size="14" font-family="monospace" fill="#1C1C1C">x²</text>
+
+  <rect x="300" y="56" width="90" height="48" rx="7" fill="#fff" stroke="#1E3A5F"/>
+  <text x="345" y="85" text-anchor="middle" font-size="14" font-family="monospace" fill="#1C1C1C">+ 3x</text>
+
+  <circle cx="470" cy="80" r="28" fill="#E7F5EC" stroke="#16A34A" stroke-width="1.5"/>
+  <text x="470" y="79" text-anchor="middle" font-size="15" font-family="monospace" font-weight="700" fill="#16A34A">y</text>
+  <text x="470" y="94" text-anchor="middle" font-size="10" fill="#525252">10.0</text>
+
+  <line x1="100" y1="72" x2="156" y2="72" stroke="#1E3A5F" stroke-width="1.7" marker-end="url(#arf)"/>
+  <line x1="252" y1="72" x2="296" y2="72" stroke="#1E3A5F" stroke-width="1.7" marker-end="url(#arf)"/>
+  <line x1="392" y1="72" x2="438" y2="72" stroke="#1E3A5F" stroke-width="1.7" marker-end="url(#arf)"/>
+  <text x="270" y="38" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1E3A5F">
+    순전파 forward — 답을 계산한다</text>
+
+  <line x1="440" y1="122" x2="394" y2="122" stroke="#B91C1C" stroke-width="1.7" stroke-dasharray="5,3" marker-end="url(#arb)"/>
+  <line x1="296" y1="122" x2="254" y2="122" stroke="#B91C1C" stroke-width="1.7" stroke-dasharray="5,3" marker-end="url(#arb)"/>
+  <line x1="156" y1="122" x2="102" y2="122" stroke="#B91C1C" stroke-width="1.7" stroke-dasharray="5,3" marker-end="url(#arb)"/>
+  <text x="270" y="146" text-anchor="middle" font-size="12.5" font-weight="700" fill="#B91C1C">
+    역전파 backward — 거꾸로 되짚어 «각 값의 책임»을 계산한다</text>
+
+  <rect x="530" y="52" width="150" height="56" rx="7" fill="#FBECEB" stroke="#B91C1C"/>
+  <text x="605" y="74" text-anchor="middle" font-size="12" fill="#B91C1C">그 결과가 여기 쌓인다</text>
+  <text x="605" y="94" text-anchor="middle" font-size="13" font-family="monospace" font-weight="700" fill="#B91C1C">x.grad = 7.0</text>
+  <text x="350" y="176" text-anchor="middle" font-size="11.5" fill="#737373">
+    「x를 조금 키우면 y는 7배로 커진다」 = x가 결과에 미치는 영향력</text>
+</svg>
+<figcaption>PyTorch는 계산할 때마다 <strong>경로를 기록</strong>해 뒀다가, <code>backward()</code>를 부르면 그 길을 거꾸로 되짚어 기울기를 구합니다.</figcaption>
+</figure>
+
+<h3>☠️ 가장 많이 틀리는 것 — 기울기는 «쌓입니다»</h3>
+
+<p><code>backward()</code>를 부를 때마다 <code>.grad</code>에 <strong>덮어쓰는 게 아니라 «더해집니다».</strong> 실제로 돌려본 결과입니다.</p>
+
+<div class="scroll"><table>
+<thead><tr><th></th><th class="n">1회차</th><th class="n">2회차</th><th class="n">3회차</th><th class="n">4회차</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td><strong>초기화 안 함</strong></td><td class="n">7.0</td><td class="n">14.0</td><td class="n">21.0</td><td class="n">28.0</td>
+    <td style="color:var(--bad)"><strong>계속 커짐 — 학습이 망가짐</strong></td></tr>
+<tr><td><strong><code>zero_grad()</code> 함</strong></td><td class="n">7.0</td><td class="n">7.0</td><td class="n">7.0</td><td class="n">7.0</td>
+    <td style="color:var(--good)"><strong>매번 제대로 된 값</strong></td></tr>
+</tbody></table></div>
+
+<div class="ana">
+  <div class="t">왜 이렇게 설계했나</div>
+  <p>「나눠서 계산한 걸 합치고 싶다」는 경우가 있어서 <strong>기본이 더하기</strong>입니다. 대신 <strong>안 쓸 땐 직접 지워야</strong> 합니다.</p>
+  <p>그래서 학습 루프의 <strong>첫 줄이 항상 <code>optimizer.zero_grad()</code></strong>입니다. 빼먹으면 손실이 안 줄어드는데 오류는 안 나서 원인을 찾기 어렵습니다.</p>
+</div>
+
+<h3>비슷해 보이는 셋 — no_grad / detach / item</h3>
+
+<div class="scroll"><table>
+<thead><tr><th class="n">쓰는 법</th><th>하는 일</th><th>언제 쓰나</th></tr></thead>
+<tbody>
+<tr><td class="n">with torch.no_grad():<br>&nbsp;&nbsp;...</td><td>이 블록 안에서는 <strong>기록을 안 남김</strong></td><td><strong>가중치를 직접 고칠 때</strong>(심화 2), 학습 끝나고 <strong>평가할 때</strong>. 「고치는 행위」 자체가 학습 대상이 되면 안 되니까</td></tr>
+<tr><td class="n">a.detach()</td><td>그 텐서 <strong>하나만</strong> 기록에서 떼어냄</td><td>중간 결과를 다른 데 쓰고 싶은데 학습에 섞이면 안 될 때</td></tr>
+<tr><td class="n">a.item()</td><td>텐서에서 <strong>파이썬 숫자 하나</strong>를 꺼냄</td><td>손실값을 기록·출력할 때. <code>losses.append(loss.item())</code></td></tr>
+</tbody></table></div>
+
+<div class="box warn">
+  <div class="t">왜 <code>.item()</code>을 써야 하나</div>
+  <p><code>losses.append(loss)</code>처럼 텐서를 그대로 담으면, <strong>그 텐서에 딸린 계산 기록이 통째로 메모리에 남습니다.</strong> 수천 번 반복하면 메모리가 꽉 찹니다. <code>.item()</code>은 <strong>숫자만</strong> 빼옵니다.</p>
+</div>
+
+<h2 id="s7"><span class="no">7부</span>신경망의 부품들</h2>
+
+<div class="nail">
+  <div class="k">먼저 — 5부와 7부를 잇는 다리</div>
+  <div class="v">뉴런 하나 = 5부에서 배운 <strong>ŷ = wx + b</strong> 그대로입니다. 새로운 게 없습니다.</div>
+  <div class="s">「신경망」이라는 말 때문에 뭔가 새로운 게 나올 것 같지만, <strong>부품은 이미 다 배웠습니다.</strong>
+  아래 세 걸음이면 82개짜리 MLP까지 이어집니다.</div>
+</div>
+
+<h3>걸음 1. 뉴런 하나 = ŷ = wx + b</h3>
+
+<p>입력이 2개면 가중치도 2개일 뿐, 식은 똑같습니다. 입력 <code>x = [5, 4]</code> · 가중치 <code>w = [2, -3]</code> · 편향 <code>b = 1</code> 이면</p>
+
+<pre><code>2×5 + (-3)×4 + 1 = <span class="o">-1</span>
+
+nn.Linear(2, 1) 에 같은 값을 넣어도  <span class="o">-1.0</span>   <span class="c"># 손계산과 정확히 일치</span></code></pre>
+
+<p><strong>파라미터는 w 2개 + b 1개 = 3개</strong>입니다.</p>
+
+<h3>걸음 2. 층 = 그 직선을 «여러 개 나란히» 놓은 것</h3>
+
+<p><code>nn.Linear(2, 3)</code> 은 <strong>똑같은 계산을 3벌 동시에</strong> 하는 것입니다. 같은 입력 <code>[5, 4]</code>를 넣으면:</p>
+
+<div class="scroll"><table>
+<thead><tr><th></th><th>계산</th><th class="n">결과</th></tr></thead>
+<tbody>
+<tr><td><strong>뉴런 1</strong></td><td class="n">2×5 + (−3)×4 + 1</td><td class="n">−1.0</td></tr>
+<tr><td><strong>뉴런 2</strong></td><td class="n">1×5 + 1×4 + 0</td><td class="n">9.0</td></tr>
+<tr><td><strong>뉴런 3</strong></td><td class="n">0×5 + 5×4 + (−2)</td><td class="n">18.0</td></tr>
+<tr><td colspan="2"><strong>출력</strong></td><td class="n"><strong>[−1.0, 9.0, 18.0]</strong></td></tr>
+</tbody></table></div>
+
+<p><strong>뉴런이 3개니까 답도 3개</strong> 나옵니다. 그게 <code>nn.Linear(2, <strong>3</strong>)</code>의 뒤 숫자입니다.</p>
+
+<div class="box good">
+  <div class="t">파라미터 개수 공식이 여기서 나옵니다</div>
+  <p>위 층의 파라미터 = w <strong>3×2 = 6</strong>개 + b <strong>3</strong>개 = <strong>9개</strong></p>
+  <p style="font-size:16px"><strong>파라미터 = 입력수 × 출력수 + 출력수</strong></p>
+  <p>그래서 미션 4의 82개가 이렇게 나옵니다 —
+     <code>Linear(2,16)</code> = 2×16+16 = <strong>48</strong>,
+     <code>Linear(16,2)</code> = 16×2+2 = <strong>34</strong>, 합 <strong>82</strong>.</p>
+  <p><strong>「16」은 사람이 정한 숫자입니다.</strong> 은닉 뉴런을 몇 개 둘지는 정답이 없고, 8이든 32든 됩니다. 미션 4가 16으로 정해준 것뿐입니다.</p>
+</div>
+
+<h3>걸음 3. 활성화 함수가 없으면 층을 쌓아도 «헛수고»입니다</h3>
+
+<p>말로 하면 안 믿기니 <strong>실제로 돌려 보겠습니다.</strong> <code>Linear(2,3)</code> → <code>Linear(3,2)</code> 두 층에 데이터 4개를 통과시킨 결과입니다.</p>
+
+<div class="scroll"><table>
+<thead><tr><th></th><th class="n">4개 데이터의 출력</th></tr></thead>
+<tbody>
+<tr><td><strong>두 층을 통과시킴</strong></td><td class="n">0.1845  0.7584<br>0.0040  0.4726<br>0.2476  0.8982<br>0.0985  0.5844</td></tr>
+<tr><td><strong>두 층을 «한 층으로 합쳐» 계산</strong></td><td class="n">0.1845  0.7584<br>0.0040  0.4726<br>0.2476  0.8982<br>0.0985  0.5844</td></tr>
+<tr><td colspan="2" style="background:var(--bad-soft);color:#7F1D1D"><strong>최대 차이 = 0.00000006 — 소수점 7자리까지 같습니다</strong></td></tr>
+</tbody></table></div>
+
+<div class="box bad">
+  <div class="t">층을 두 개 쌓았는데 한 개짜리와 구별이 안 됩니다</div>
+  <p>계산은 두 배로 했는데 <strong>표현할 수 있는 것은 하나도 안 늘었습니다.</strong> 100층을 쌓아도 마찬가지입니다.</p>
+  <p>이유는 간단합니다 — 직선에 직선을 넣으면 결국 직선입니다. <code>2(3x+1)+5 = 6x+7</code></p>
+</div>
+
+<p>이제 두 층 <strong>사이에 ReLU만</strong> 끼워 넣고 똑같이 돌립니다.</p>
+
+<div class="scroll"><table>
+<thead><tr><th></th><th class="n">4개 데이터의 출력</th></tr></thead>
+<tbody>
+<tr><td><strong>ReLU를 낀 두 층</strong></td><td class="n">0.3358  0.8132<br>0.1074  0.5100<br>0.3411  0.9321<br>0.2976  0.6566</td></tr>
+<tr><td>아까 그 한 층</td><td class="n" style="color:var(--muted)">0.1845  0.7584<br>0.0040  0.4726<br>0.2476  0.8982<br>0.0985  0.5844</td></tr>
+<tr><td colspan="2" style="background:var(--good-soft);color:#14532D"><strong>최대 차이 = 0.1991 — 완전히 다른 함수가 됐습니다</strong></td></tr>
+</tbody></table></div>
+
+<div class="nail">
+  <div class="k">그래서 활성화 함수란</div>
+  <div class="v">「층을 쌓은 게 헛수고가 되지 않게 막는 마개」입니다.</div>
+  <div class="s">ReLU가 하는 일은 <strong>「음수를 0으로」 딱 하나</strong>입니다. 그런데 그 한 번의 꺾임이 층을 «진짜 층»으로 만듭니다.
+  이게 없으면 아무리 깊게 쌓아도 1층짜리와 같습니다.</div>
+</div>
+
+<h3>활성화 함수 세 가지 — 어떻게 다른가</h3>
+
+<div class="lab">
+  <div class="lt">활성화 함수 세 가지 — 실제 계산한 곡선</div>
+  <div class="chips" id="actchips">
+    <button class="chip on" data-f="relu">ReLU</button>
+    <button class="chip" data-f="sigmoid">Sigmoid</button>
+    <button class="chip" data-f="tanh">Tanh</button>
+  </div>
+  <svg id="actsvg" viewBox="0 0 640 300" style="width:100%;height:auto;display:block"></svg>
+  <div class="verdict" id="actv"></div>
+</div>
+
+<div class="scroll"><table>
+<thead><tr><th class="n">이름</th><th>모양을 말로</th><th>출력 범위</th><th>어디에 쓰나</th></tr></thead>
+<tbody>
+<tr><td class="n">ReLU</td><td><strong>음수는 0으로, 양수는 그대로.</strong> 꺾인 직선</td><td class="n">0 ~ ∞</td><td><strong>층 사이에 가장 많이 씀.</strong> 계산이 빠르고 잘 학습됨</td></tr>
+<tr><td class="n">Sigmoid</td><td>S자 곡선. 크면 1, 작으면 0에 붙음</td><td class="n">0 ~ 1</td><td><strong>둘 중 하나</strong>를 고르는 문제의 마지막. 「확률」로 읽힘</td></tr>
+<tr><td class="n">Tanh</td><td>Sigmoid를 -1~1로 늘린 것</td><td class="n">-1 ~ 1</td><td>중심이 0이라 학습이 좀 더 안정적</td></tr>
+<tr><td class="n">Softmax</td><td>여러 개를 <strong>합이 1인 확률</strong>로</td><td class="n">각각 0~1, 합=1</td><td><strong>셋 이상 중 고르는</strong> 문제. ⚠️ CrossEntropy 쓸 땐 붙이지 않음</td></tr>
+</tbody></table></div>
+
+<h4>Softmax는 이렇게 계산됩니다 (실제 값)</h4>
+<div class="scroll"><table>
+<thead><tr><th></th><th class="n">①</th><th class="n">②</th><th class="n">③</th><th class="n">합</th></tr></thead>
+<tbody>
+<tr><td><strong>모델 출력 (logits)</strong></td><td class="n">1.0</td><td class="n">2.0</td><td class="n">3.0</td><td class="n">—</td></tr>
+<tr><td><strong>e를 밑으로 올림</strong></td><td class="n">2.7183</td><td class="n">7.3891</td><td class="n">20.0855</td><td class="n">30.1929</td></tr>
+<tr><td><strong>전체 합으로 나눔 = 확률</strong></td><td class="n">0.0900</td><td class="n">0.2447</td><td class="n"><strong>0.6652</strong></td><td class="n"><strong>1.0</strong></td></tr>
+</tbody></table></div>
+<p class="fine">「1, 2, 3」이라는 아무 의미 없던 숫자가 <strong>「9% · 24% · 67%로 3번이 정답일 것 같다」</strong>는 확률로 바뀝니다. 이게 Softmax가 하는 일입니다.</p>
+
+<h3>층(Layer) — nn.Linear</h3>
+
+<p><code>nn.Linear(들어오는 개수, 나가는 개수)</code>가 앞서 본 <strong><code>ŷ = wx + b</code>를 여러 개 한꺼번에</strong> 하는 부품입니다.</p>
+
+<figure>
+<svg viewBox="0 0 700 260" role="img" aria-label="MLP 구조">
+  <text x="350" y="20" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1E3A5F">
+    미션 4 「심화 4」의 MLP — nn.Linear(2,16) → ReLU → nn.Linear(16,2)</text>
+
+  <text x="80" y="52" text-anchor="middle" font-size="12" font-weight="700" fill="#525252">입력층</text>
+  <text x="80" y="68" text-anchor="middle" font-size="11" fill="#737373">2개</text>
+  <circle cx="80" cy="105" r="15" fill="#E8EDF4" stroke="#1E3A5F"/>
+  <circle cx="80" cy="150" r="15" fill="#E8EDF4" stroke="#1E3A5F"/>
+
+  <text x="290" y="52" text-anchor="middle" font-size="12" font-weight="700" fill="#525252">은닉층</text>
+  <text x="290" y="68" text-anchor="middle" font-size="11" fill="#737373">16개 (+ReLU)</text>
+  <g fill="#E8EDF4" stroke="#1E3A5F">
+    <circle cx="290" cy="88" r="11"/><circle cx="290" cy="112" r="11"/>
+    <circle cx="290" cy="136" r="11"/><circle cx="290" cy="160" r="11"/>
+    <circle cx="290" cy="184" r="11"/>
+  </g>
+  <text x="290" y="210" text-anchor="middle" font-size="15" fill="#737373">⋮</text>
+
+  <text x="510" y="52" text-anchor="middle" font-size="12" font-weight="700" fill="#525252">출력층</text>
+  <text x="510" y="68" text-anchor="middle" font-size="11" fill="#737373">2개 (클래스 수)</text>
+  <circle cx="510" cy="105" r="15" fill="#E7F5EC" stroke="#16A34A"/>
+  <circle cx="510" cy="150" r="15" fill="#E7F5EC" stroke="#16A34A"/>
+
+  <g stroke="#1E3A5F" stroke-width=".5" opacity=".35">
+    <line x1="95" y1="105" x2="279" y2="88"/><line x1="95" y1="105" x2="279" y2="112"/>
+    <line x1="95" y1="105" x2="279" y2="136"/><line x1="95" y1="105" x2="279" y2="160"/>
+    <line x1="95" y1="105" x2="279" y2="184"/>
+    <line x1="95" y1="150" x2="279" y2="88"/><line x1="95" y1="150" x2="279" y2="112"/>
+    <line x1="95" y1="150" x2="279" y2="136"/><line x1="95" y1="150" x2="279" y2="160"/>
+    <line x1="95" y1="150" x2="279" y2="184"/>
+    <line x1="301" y1="88" x2="495" y2="105"/><line x1="301" y1="112" x2="495" y2="105"/>
+    <line x1="301" y1="136" x2="495" y2="105"/><line x1="301" y1="160" x2="495" y2="105"/>
+    <line x1="301" y1="184" x2="495" y2="105"/>
+    <line x1="301" y1="88" x2="495" y2="150"/><line x1="301" y1="112" x2="495" y2="150"/>
+    <line x1="301" y1="136" x2="495" y2="150"/><line x1="301" y1="160" x2="495" y2="150"/>
+    <line x1="301" y1="184" x2="495" y2="150"/>
+  </g>
+  <text x="185" y="238" text-anchor="middle" font-size="11.5" font-family="monospace" fill="#1E3A5F">
+    2×16 + 16 = 48</text>
+  <text x="400" y="238" text-anchor="middle" font-size="11.5" font-family="monospace" fill="#1E3A5F">
+    16×2 + 2 = 34</text>
+  <text x="595" y="238" text-anchor="middle" font-size="13" font-family="monospace" font-weight="700" fill="#B91C1C">
+    합 82개</text>
+  <text x="595" y="150" text-anchor="middle" font-size="11" fill="#737373">← 여기서</text>
+  <text x="595" y="166" text-anchor="middle" font-size="11" fill="#737373">답이 나온다</text>
+</svg>
+<figcaption>선(연결) 하나하나가 <strong>가중치 w</strong> 하나입니다. 동그라미마다 <strong>편향 b</strong>가 하나씩 더 붙습니다.</figcaption>
+</figure>
+
+<div class="scroll"><table>
+<thead><tr><th class="n">이름</th><th class="n">모양</th><th class="n">개수</th><th>정체</th></tr></thead>
+<tbody>
+<tr><td class="n">0.weight</td><td class="n">(16, 2)</td><td class="n">32</td><td>입력 2개 → 은닉 16개 연결선</td></tr>
+<tr><td class="n">0.bias</td><td class="n">(16,)</td><td class="n">16</td><td>은닉 뉴런 16개의 편향</td></tr>
+<tr><td class="n">2.weight</td><td class="n">(2, 16)</td><td class="n">32</td><td>은닉 16개 → 출력 2개 연결선</td></tr>
+<tr><td class="n">2.bias</td><td class="n">(2,)</td><td class="n">2</td><td>출력 뉴런 2개의 편향</td></tr>
+<tr><td colspan="2"><strong>합계</strong></td><td class="n"><strong>82</strong></td><td>확인 셀이 검사하는 숫자</td></tr>
+</tbody></table></div>
+
+<h2 id="s8"><span class="no">8부</span>학습 루프 5단계</h2>
+
+<p>여기까지 온 모든 개념이 <strong>이 다섯 줄</strong>에 모입니다. 딥러닝 코드는 결국 이걸 반복하는 것입니다.</p>
+
+<figure>
+<svg viewBox="0 0 700 300" role="img" aria-label="학습 루프 5단계">
+  <defs><marker id="ar5" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L7,3 z" fill="#1E3A5F"/></marker></defs>
+
+  <rect x="40" y="40" width="240" height="42" rx="7" fill="#FBECEB" stroke="#B91C1C" stroke-width="1.4"/>
+  <text x="62" y="66" font-size="15" font-family="monospace" font-weight="700" fill="#B91C1C">1</text>
+  <text x="86" y="60" font-size="13" font-family="monospace" fill="#1C1C1C">optimizer.zero_grad()</text>
+  <text x="86" y="76" font-size="10.5" fill="#B91C1C">지난 기울기를 지운다 — 빼먹으면 쌓인다</text>
+
+  <rect x="40" y="94" width="240" height="42" rx="7" fill="#E8EDF4" stroke="#1E3A5F" stroke-width="1.4"/>
+  <text x="62" y="120" font-size="15" font-family="monospace" font-weight="700" fill="#1E3A5F">2</text>
+  <text x="86" y="114" font-size="13" font-family="monospace" fill="#1C1C1C">logits = model(X)</text>
+  <text x="86" y="130" font-size="10.5" fill="#525252">순전파 — 지금 값으로 답을 내본다</text>
+
+  <rect x="40" y="148" width="240" height="42" rx="7" fill="#E8EDF4" stroke="#1E3A5F" stroke-width="1.4"/>
+  <text x="62" y="174" font-size="15" font-family="monospace" font-weight="700" fill="#1E3A5F">3</text>
+  <text x="86" y="168" font-size="13" font-family="monospace" fill="#1C1C1C">loss = criterion(logits, y)</text>
+  <text x="86" y="184" font-size="10.5" fill="#525252">얼마나 틀렸나를 숫자 하나로</text>
+
+  <rect x="40" y="202" width="240" height="42" rx="7" fill="#E8EDF4" stroke="#1E3A5F" stroke-width="1.4"/>
+  <text x="62" y="228" font-size="15" font-family="monospace" font-weight="700" fill="#1E3A5F">4</text>
+  <text x="86" y="222" font-size="13" font-family="monospace" fill="#1C1C1C">loss.backward()</text>
+  <text x="86" y="238" font-size="10.5" fill="#525252">역전파 — 각 가중치의 «책임»을 계산</text>
+
+  <rect x="40" y="256" width="240" height="42" rx="7" fill="#E7F5EC" stroke="#16A34A" stroke-width="1.4"/>
+  <text x="62" y="282" font-size="15" font-family="monospace" font-weight="700" fill="#16A34A">5</text>
+  <text x="86" y="276" font-size="13" font-family="monospace" fill="#1C1C1C">optimizer.step()</text>
+  <text x="86" y="292" font-size="10.5" fill="#16A34A">실제로 가중치를 옮긴다</text>
+
+  <path d="M285,61 L320,61" stroke="#1E3A5F" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <path d="M285,115 L320,115" stroke="#1E3A5F" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <path d="M285,169 L320,169" stroke="#1E3A5F" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <path d="M285,223 L320,223" stroke="#1E3A5F" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <path d="M285,277 L320,277" stroke="#1E3A5F" stroke-width="1.5" marker-end="url(#ar5)"/>
+
+  <text x="340" y="66" font-size="12" fill="#525252">칠판을 지우고</text>
+  <text x="340" y="120" font-size="12" fill="#525252">문제를 풀어보고</text>
+  <text x="340" y="174" font-size="12" fill="#525252">몇 점인지 채점하고</text>
+  <text x="340" y="228" font-size="12" fill="#525252">어디서 틀렸는지 짚고</text>
+  <text x="340" y="282" font-size="12" fill="#525252">고쳐서 다시 푼다</text>
+
+  <path d="M540,60 L610,60 L610,290 L540,290" fill="none" stroke="#1E3A5F"
+        stroke-width="1.5" stroke-dasharray="5,4"/>
+  <text x="648" y="170" text-anchor="middle" font-size="12" font-weight="700" fill="#1E3A5F">반복</text>
+  <text x="648" y="188" text-anchor="middle" font-size="11" fill="#737373">epoch</text>
+</svg>
+<figcaption>순서가 중요합니다. <strong>1번을 빼먹으면 손실이 안 줄고, 4번 없이 5번을 하면 아무 일도 안 일어납니다.</strong></figcaption>
+</figure>
+
+<h3>옵티마이저 — 「어떻게 옮길지」의 전략</h3>
+
+<div class="scroll"><table>
+<thead><tr><th class="n">이름</th><th>전략을 말로</th><th>비유</th></tr></thead>
+<tbody>
+<tr><td class="n">SGD</td><td>기울기 방향으로 <strong>학습률만큼 그냥 간다.</strong> 가장 단순</td><td>매번 발밑만 보고 한 걸음. 울퉁불퉁하면 지그재그로 헤맴</td></tr>
+<tr><td class="n">SGD + momentum</td><td>이전에 가던 <strong>방향의 관성</strong>을 얹는다</td><td>공이 굴러 내려가듯. 작은 웅덩이는 관성으로 지나침</td></tr>
+<tr><td class="n">Adam</td><td><strong>관성 + 방향별로 걸음 크기를 자동 조절.</strong> 많이 움직인 방향은 조금씩, 안 움직인 방향은 크게</td><td>지형에 맞춰 보폭을 스스로 바꾸는 등산가</td></tr>
+</tbody></table></div>
+
+<div class="box good">
+  <div class="t">실무에서는</div>
+  <p><strong>Adam을 기본으로 씁니다.</strong> 학습률을 대충 잡아도 어지간히 잘 됩니다. 미션 4에서 SGD와 비교하게 하는 이유가 이걸 체감시키려는 겁니다.</p>
+</div>
+
+<h3>미니배치와 DataLoader — 데이터를 나눠서 먹인다</h3>
+
+<div class="ana">
+  <div class="t">비유</div>
+  <p>문제집 500문제를 <strong>전부 푼 다음에</strong> 한 번 채점하면(전체 배치), 채점 한 번 하는 데 너무 오래 걸립니다.</p>
+  <p><strong>64문제씩 끊어서</strong> 풀고 바로 채점하면(미니배치), 훨씬 자주 고칠 수 있습니다. 500 ÷ 64 = <strong>8묶음</strong>(마지막 묶음은 12문제).</p>
+</div>
+
+<div class="scroll"><table>
+<thead><tr><th>방식</th><th>한 번에 보는 양</th><th>장점</th><th>단점</th></tr></thead>
+<tbody>
+<tr><td>전체 배치</td><td>500개 전부</td><td>방향이 정확함</td><td>느리고 메모리 많이 씀</td></tr>
+<tr><td><strong>미니배치</strong></td><td>64개씩</td><td><strong>빠르고 메모리 적게 씀.</strong> 약간의 무작위성이 오히려 도움</td><td>방향이 조금 흔들림</td></tr>
+</tbody></table></div>
+
+<pre><code>dataset = TensorDataset(X, y)              <span class="c"># 입력과 정답을 «짝지어» 묶는다</span>
+loader  = DataLoader(dataset, batch_size=64, shuffle=<span class="k">True</span>)
+
+<span class="k">for</span> xb, yb <span class="k">in</span> loader:      <span class="c"># 8번 돈다 (64,64,...,64,12)</span>
+    ...                     <span class="c"># 이 안에서 5단계를 수행</span></code></pre>
+
+<div class="scroll"><table>
+<thead><tr><th class="n">항목</th><th>뜻</th></tr></thead>
+<tbody>
+<tr><td class="n">batch_size=64</td><td>한 묶음에 64개씩</td></tr>
+<tr><td class="n">shuffle=True</td><td><strong>매 에폭마다 순서를 섞는다.</strong> 같은 순서로만 보면 순서 자체를 외워버림</td></tr>
+<tr><td class="n">epoch (에폭)</td><td>전체 데이터를 <strong>한 바퀴</strong> 다 본 것. 100에폭 = 500개를 100번 훑음</td></tr>
+</tbody></table></div>
+
+<h2 id="s9"><span class="no">9부</span>용어 사전</h2>
+<p class="fine">모르는 단어가 나오면 여기서 찾으세요. 검색창에 한글·영어 아무거나 치면 걸러집니다.</p>
+
+<div class="gloss">
+  <input type="text" class="gsearch" id="gs" placeholder="용어 검색 — 예: 텐서, loss, 에폭, grad">
+  <div class="gcount" id="gc"></div>
+  <div id="glist"></div>
+</div>
+
+<h2 id="s10"><span class="no">10부</span>함수 총정리</h2>
+<p class="fine">미션 4를 푸는 데 필요한 함수 전부입니다. 「무엇을 하고 싶은가」로 찾으세요.</p>
+
+<div class="scroll"><table>
+<thead><tr><th>하고 싶은 것</th><th class="n">함수</th><th>메모</th></tr></thead>
+<tbody>
+<tr><td colspan="3" style="background:var(--accent);color:#fff;font-weight:700">텐서 만들기</td></tr>
+<tr><td>내가 적은 숫자로</td><td class="n">torch.tensor([1,2,3])</td><td>dtype도 같이 지정 가능</td></tr>
+<tr><td>0부터 n-1까지</td><td class="n">torch.arange(n)</td><td>⚠️ 기본이 정수</td></tr>
+<tr><td>전부 0 / 1 / 특정값</td><td class="n">torch.zeros / ones / full</td><td>모양을 인자로</td></tr>
+<tr><td>무작위</td><td class="n">torch.randn(2,3)</td><td>가중치 초기값</td></tr>
+<tr><td>구간을 등분</td><td class="n">torch.linspace(0,1,100)</td><td>그래프 x축</td></tr>
+<tr><td colspan="3" style="background:var(--accent);color:#fff;font-weight:700">모양 다루기</td></tr>
+<tr><td>모양 확인</td><td class="n">t.shape</td><td><strong>막히면 제일 먼저 찍어볼 것</strong></td></tr>
+<tr><td>다시 담기</td><td class="n">t.reshape(3,4) / t.view(3,4)</td><td><code>-1</code>은 자동 계산</td></tr>
+<tr><td>1짜리 차원 없애기</td><td class="n">t.squeeze()</td><td>전부 없앰. 자리 지정 가능</td></tr>
+<tr><td>1짜리 차원 만들기</td><td class="n">t.unsqueeze(0)</td><td>맨 뒤는 <code>-1</code></td></tr>
+<tr><td>한 줄로 펴기</td><td class="n">t.flatten()</td><td></td></tr>
+<tr><td>이어 붙이기</td><td class="n">torch.cat([a,b], dim=0)</td><td>차원 개수 그대로</td></tr>
+<tr><td>쌓기</td><td class="n">torch.stack([a,b], dim=0)</td><td>차원 하나 늘어남</td></tr>
+<tr><td colspan="3" style="background:var(--accent);color:#fff;font-weight:700">타입 바꾸기</td></tr>
+<tr><td>소수로</td><td class="n">t.float()</td><td>= <code>.to(torch.float32)</code></td></tr>
+<tr><td>정수로</td><td class="n">t.long()</td><td>⚠️ 반올림 아니라 <strong>버림</strong></td></tr>
+<tr><td>확인</td><td class="n">t.dtype</td><td></td></tr>
+<tr><td colspan="3" style="background:var(--accent);color:#fff;font-weight:700">계산</td></tr>
+<tr><td>같은 자리끼리 곱</td><td class="n">a * b</td><td>모양이 같아야 (또는 브로드캐스팅)</td></tr>
+<tr><td>행렬곱</td><td class="n">a @ b · torch.matmul(a,b)</td><td>가운데 숫자가 맞아야</td></tr>
+<tr><td>평균 / 합</td><td class="n">t.mean() · t.sum()</td><td><code>dim=</code>으로 방향 지정</td></tr>
+<tr><td>가장 큰 값의 위치</td><td class="n">t.argmax(dim=1)</td><td><strong>분류 결과를 읽을 때</strong></td></tr>
+<tr><td colspan="3" style="background:var(--accent);color:#fff;font-weight:700">미분 (autograd)</td></tr>
+<tr><td>추적 켜기</td><td class="n">requires_grad=True</td><td>만들 때 인자로</td></tr>
+<tr><td>기울기 계산</td><td class="n">loss.backward()</td><td>거꾸로 되짚음</td></tr>
+<tr><td>기울기 꺼내기</td><td class="n">w.grad</td><td>backward 전엔 <code>None</code></td></tr>
+<tr><td>기울기 지우기</td><td class="n">w.grad.zero_() · optimizer.zero_grad()</td><td><strong>안 하면 쌓임</strong></td></tr>
+<tr><td>추적 끄기</td><td class="n">with torch.no_grad():</td><td>가중치 직접 수정·평가할 때</td></tr>
+<tr><td>숫자만 꺼내기</td><td class="n">loss.item()</td><td>기록·출력용</td></tr>
+<tr><td colspan="3" style="background:var(--accent);color:#fff;font-weight:700">활성화 함수</td></tr>
+<tr><td>음수를 0으로</td><td class="n">torch.relu(z) · F.relu(z)</td><td>층 사이 기본</td></tr>
+<tr><td>0~1로</td><td class="n">torch.sigmoid(z)</td><td>이진 분류 마지막</td></tr>
+<tr><td>합이 1인 확률로</td><td class="n">torch.softmax(z, dim=0)</td><td>⚠️ <code>dim</code> 꼭 지정</td></tr>
+<tr><td colspan="3" style="background:var(--accent);color:#fff;font-weight:700">모델·학습</td></tr>
+<tr><td>선형 층</td><td class="n">nn.Linear(입력수, 출력수)</td><td>파라미터 = 입력×출력 + 출력</td></tr>
+<tr><td>모델 만들기</td><td class="n">class M(nn.Module):</td><td><code>__init__</code>에 층, <code>forward</code>에 흐름</td></tr>
+<tr><td>회귀 손실</td><td class="n">nn.MSELoss()</td><td>숫자를 맞히는 문제</td></tr>
+<tr><td>분류 손실</td><td class="n">nn.CrossEntropyLoss()</td><td>⚠️ Softmax 내장, 라벨은 정수</td></tr>
+<tr><td>옵티마이저</td><td class="n">torch.optim.SGD(params, lr=)<br>torch.optim.Adam(params, lr=)</td><td>보통 Adam</td></tr>
+<tr><td>파라미터 개수 세기</td><td class="n">sum(p.numel() for p in m.parameters())</td><td>심화 4의 82</td></tr>
+<tr><td>데이터 묶기</td><td class="n">TensorDataset(X, y)</td><td>입력·정답 짝짓기</td></tr>
+<tr><td>미니배치로 나누기</td><td class="n">DataLoader(ds, batch_size=64, shuffle=True)</td><td></td></tr>
+<tr><td>장치 확인</td><td class="n">torch.cuda.is_available()</td><td>맥은 False → <code>cpu</code></td></tr>
+<tr><td>장치로 옮기기</td><td class="n">t.to(device)</td><td>모델과 데이터가 같은 곳에 있어야</td></tr>
+</tbody></table></div>
+
+<hr>
+<p class="fine">
+이 문서의 <strong>모든 숫자와 그래프는 실제로 계산한 값</strong>입니다 — 브로드캐스팅 사고 <code>(3,1)-(3,)=(3,3)</code>, 기울기 누적 <code>7→14→21→28</code>, MSE <code>0.166667</code>, 파라미터 <code>82</code>, 활성화 곡선 121점, 경사하강 궤적 전부 PyTorch 2.14.0으로 뽑았습니다.<br>
+미션 4의 <strong>정답은 담지 않았습니다.</strong> 개념과 원리까지입니다.</p>
+
+<script>
+const D = {"act":{"x":[-6.0,-5.9,-5.8,-5.7,-5.6,-5.5,-5.4,-5.3,-5.2,-5.1,-5.0,-4.9,-4.8,-4.7,-4.6,-4.5,-4.4,-4.3,-4.2,-4.1,-4.0,-3.9,-3.8,-3.7,-3.6,-3.5,-3.4,-3.3,-3.2,-3.1,-3.0,-2.9,-2.8,-2.7,-2.6,-2.5,-2.4,-2.3,-2.2,-2.1,-2.0,-1.9,-1.8,-1.7,-1.6,-1.5,-1.4,-1.3,-1.2,-1.1,-1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.1,3.2,3.3,3.4,3.5,3.6,3.7,3.8,3.9,4.0,4.1,4.2,4.3,4.4,4.5,4.6,4.7,4.8,4.9,5.0,5.1,5.2,5.3,5.4,5.5,5.6,5.7,5.8,5.9,6.0],"relu":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.1,3.2,3.3,3.4,3.5,3.6,3.7,3.8,3.9,4.0,4.1,4.2,4.3,4.4,4.5,4.6,4.7,4.8,4.9,5.0,5.1,5.2,5.3,5.4,5.5,5.6,5.7,5.8,5.9,6.0],"sigmoid":[0.0025,0.0027,0.003,0.0033,0.0037,0.0041,0.0045,0.005,0.0055,0.0061,0.0067,0.0074,0.0082,0.009,0.01,0.011,0.0121,0.0134,0.0148,0.0163,0.018,0.0198,0.0219,0.0241,0.0266,0.0293,0.0323,0.0356,0.0392,0.0431,0.0474,0.0522,0.0573,0.063,0.0691,0.0759,0.0832,0.0911,0.0998,0.1091,0.1192,0.1301,0.1419,0.1545,0.168,0.1824,0.1978,0.2142,0.2315,0.2497,0.2689,0.2891,0.31,0.3318,0.3543,0.3775,0.4013,0.4256,0.4502,0.475,0.5,0.525,0.5498,0.5744,0.5987,0.6225,0.6457,0.6682,0.69,0.7109,0.7311,0.7503,0.7685,0.7858,0.8022,0.8176,0.832,0.8455,0.8581,0.8699,0.8808,0.8909,0.9002,0.9089,0.9168,0.9241,0.9309,0.937,0.9427,0.9478,0.9526,0.9569,0.9608,0.9644,0.9677,0.9707,0.9734,0.9759,0.9781,0.9802,0.982,0.9837,0.9852,0.9866,0.9879,0.989,0.99,0.991,0.9918,0.9926,0.9933,0.9939,0.9945,0.995,0.9955,0.9959,0.9963,0.9967,0.997,0.9973,0.9975],"tanh":[-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-0.9999,-0.9999,-0.9999,-0.9999,-0.9999,-0.9998,-0.9998,-0.9998,-0.9997,-0.9996,-0.9996,-0.9995,-0.9993,-0.9992,-0.999,-0.9988,-0.9985,-0.9982,-0.9978,-0.9973,-0.9967,-0.9959,-0.9951,-0.994,-0.9926,-0.991,-0.989,-0.9866,-0.9837,-0.9801,-0.9757,-0.9705,-0.964,-0.9562,-0.9468,-0.9354,-0.9217,-0.9051,-0.8854,-0.8617,-0.8337,-0.8005,-0.7616,-0.7163,-0.664,-0.6044,-0.537,-0.4621,-0.3799,-0.2913,-0.1974,-0.0997,0.0,0.0997,0.1974,0.2913,0.3799,0.4621,0.537,0.6044,0.664,0.7163,0.7616,0.8005,0.8337,0.8617,0.8854,0.9051,0.9217,0.9354,0.9468,0.9562,0.964,0.9705,0.9757,0.9801,0.9837,0.9866,0.989,0.991,0.9926,0.994,0.9951,0.9959,0.9967,0.9973,0.9978,0.9982,0.9985,0.9988,0.999,0.9992,0.9993,0.9995,0.9996,0.9996,0.9997,0.9998,0.9998,0.9998,0.9999,0.9999,0.9999,0.9999,0.9999,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]},"gd":{"0.05":[4.0,3.6,3.24,2.916,2.6244,2.362,2.1258,1.9132,1.7219,1.5497,1.3947,1.2552,1.1297],"0.1":[4.0,3.2,2.56,2.048,1.6384,1.3107,1.0486,0.8389,0.6711,0.5369,0.4295,0.3436,0.2749],"0.3":[4.0,1.6,0.64,0.256,0.1024,0.041,0.0164,0.0066,0.0026,0.001,0.0004,0.0002,0.0001],"0.9":[4.0,-3.2,2.56,-2.048,1.6384,-1.3107,1.0486,-0.8389,0.6711,-0.5369,0.4295,-0.3436,0.2749],"1.0":[4.0,-4.0,4.0,-4.0,4.0,-4.0,4.0,-4.0,4.0,-4.0,4.0,-4.0,4.0],"1.05":[4.0,-4.4,4.84,-5.324,5.8564,-6.442,7.0862,-7.7949,8.5744,-9.4318,10.375,-11.4125,12.5537]},"accum":[7.0,14.0,21.0,28.0],"accum_ok":[7.0,7.0,7.0,7.0],"bc_wrong":{"a_shape":[3,1],"b_shape":[3],"out_shape":[3,3],"out":[[-9.0,-19.0,-29.0],[-8.0,-18.0,-28.0],[-7.0,-17.0,-27.0]]},"bc_right":{"a_shape":[3],"b_shape":[3],"out_shape":[3],"out":[-9.0,-18.0,-27.0]},"mse":{"pred":[2.5,0.0,2.0],"target":[3.0,-0.5,2.0],"diff":[-0.5,0.5,0.0],"sq":[0.25,0.25,0.0],"mean":0.166667},"fit":[{"step":0,"w":0.25,"b":1.372,"loss":5.78986},{"step":10,"w":0.995,"b":1.541,"loss":0.09645},{"step":20,"w":1.333,"b":1.361,"loss":0.04378},{"step":30,"w":1.556,"b":1.241,"loss":0.0206},{"step":40,"w":1.705,"b":1.161,"loss":0.01041},{"step":50,"w":1.803,"b":1.108,"loss":0.00593},{"step":60,"w":1.868,"b":1.073,"loss":0.00396},{"step":70,"w":1.912,"b":1.05,"loss":0.00309},{"step":80,"w":1.94,"b":1.035,"loss":0.00271},{"step":90,"w":1.96,"b":1.025,"loss":0.00254},{"step":100,"w":1.972,"b":1.018,"loss":0.00247},{"step":110,"w":1.981,"b":1.013,"loss":0.00243},{"step":120,"w":1.986,"b":1.01,"loss":0.00242},{"step":130,"w":1.99,"b":1.008,"loss":0.00241},{"step":140,"w":1.992,"b":1.007,"loss":0.00241},{"step":150,"w":1.994,"b":1.006,"loss":0.00241},{"step":160,"w":1.995,"b":1.006,"loss":0.00241},{"step":170,"w":1.996,"b":1.005,"loss":0.00241},{"step":180,"w":1.996,"b":1.005,"loss":0.00241},{"step":190,"w":1.996,"b":1.005,"loss":0.00241},{"step":200,"w":1.997,"b":1.005,"loss":0.00241},{"step":210,"w":1.997,"b":1.005,"loss":0.00241},{"step":220,"w":1.997,"b":1.005,"loss":0.00241},{"step":230,"w":1.997,"b":1.005,"loss":0.00241},{"step":240,"w":1.997,"b":1.005,"loss":0.00241},{"step":250,"w":1.997,"b":1.004,"loss":0.00241},{"step":260,"w":1.997,"b":1.004,"loss":0.00241},{"step":270,"w":1.997,"b":1.004,"loss":0.00241},{"step":280,"w":1.997,"b":1.004,"loss":0.00241},{"step":290,"w":1.997,"b":1.004,"loss":0.00241},{"step":299,"w":1.997,"b":1.004,"loss":0.00241}],"params":[{"name":"0.weight","shape":[16,2],"count":32},{"name":"0.bias","shape":[16],"count":16},{"name":"2.weight","shape":[2,16],"count":32},{"name":"2.bias","shape":[2],"count":2}],"params_total":82,"softmax":{"logits":[1.0,2.0,3.0],"exp":[2.7183,7.3891,20.0855],"probs":[0.09,0.2447,0.6652],"sum":1.0}};
+
+/* ─────────── 학습률 실험 (y = x²) ─────────── */
+/* ★키를 손으로 적으면 안 된다 — JS 의 String(1.0) 은 "1" 이라 파이썬이 쓴 "1.0" 과 어긋난다.
+   그러면 조회가 undefined 가 되고, 그리기가 예외로 죽어 «앞 화면이 그대로 남는다».
+   틀린 값이 아니라 «안 바뀐 값»이라 눈으로는 안 잡힌다. 그래서 데이터에서 키를 그대로 받는다. */
+const LRKEYS = Object.keys(D.gd).sort((a,b)=>parseFloat(a)-parseFloat(b));
+const LRS = LRKEYS.map(parseFloat);
+const $lr = document.getElementById('lr'), $lrv = document.getElementById('lrv'),
+      $gs2 = document.getElementById('gdsvg'), $gdv = document.getElementById('gdv'),
+      $gdr = document.getElementById('gdr');
+
+function drawGD(){
+  const idx = +$lr.value;
+  const lr = LRS[idx];
+  $lrv.textContent = lr.toFixed(2);
+  const path = D.gd[LRKEYS[idx]];
+  if(!Array.isArray(path)){                     // 조용히 죽지 않게 — 눈에 보이는 실패로
+    $gdv.className='verdict no';
+    $gdv.textContent = '내부 오류: 학습률 '+lr+' 자료를 못 찾았습니다.';
+    $gs2.innerHTML=''; $gdr.textContent=''; return;
+  }
+
+  const W=640, H=260, PADL=44, PADR=18, PADT=16, PADB=34;
+  const XMIN=-7, XMAX=7, YMAX=22;
+  const sx = x => PADL + (x-XMIN)/(XMAX-XMIN)*(W-PADL-PADR);
+  const sy = y => H-PADB - Math.min(y,YMAX)/YMAX*(H-PADT-PADB);
+
+  let s = '';
+  // 축
+  s += `<line x1="${PADL}" y1="${H-PADB}" x2="${W-PADR}" y2="${H-PADB}" stroke="#D4D4D4"/>`;
+  s += `<line x1="${sx(0)}" y1="${PADT}" x2="${sx(0)}" y2="${H-PADB}" stroke="#D4D4D4" stroke-dasharray="3,3"/>`;
+  for(let t=-6;t<=6;t+=2){
+    s += `<text x="${sx(t)}" y="${H-PADB+16}" text-anchor="middle" font-size="10" fill="#737373" font-family="monospace">${t}</text>`;
+  }
+  s += `<text x="${sx(0)}" y="${H-PADB+30}" text-anchor="middle" font-size="10.5" fill="#525252">x (찾는 값 · 목표는 0)</text>`;
+
+  // 포물선
+  let d='';
+  for(let i=0;i<=140;i++){
+    const x = XMIN + i*(XMAX-XMIN)/140;
+    d += (i?'L':'M') + sx(x).toFixed(1) + ',' + sy(x*x).toFixed(1) + ' ';
+  }
+  s += `<path d="${d}" fill="none" stroke="#1E3A5F" stroke-width="1.6" opacity=".5"/>`;
+  s += `<circle cx="${sx(0)}" cy="${sy(0)}" r="4" fill="#16A34A"/>`;
+  s += `<text x="${sx(0)}" y="${sy(0)-10}" text-anchor="middle" font-size="10.5" fill="#16A34A" font-weight="700">바닥</text>`;
+
+  // 걸음 궤적
+  const shown = path.slice(0,9);
+  let esc = false;
+  for(let i=0;i<shown.length;i++){
+    const x = shown[i];
+    if(!isFinite(x) || Math.abs(x) > XMAX){ esc = true; break; }
+    const cx=sx(x), cy=sy(x*x);
+    if(i>0){
+      const px=sx(shown[i-1]), py=sy(shown[i-1]*shown[i-1]);
+      s += `<line x1="${px}" y1="${py}" x2="${cx}" y2="${cy}" stroke="#B91C1C" stroke-width="1.3" opacity=".55"/>`;
+    }
+    const op = 1 - i*0.09;
+    s += `<circle cx="${cx}" cy="${cy}" r="${i===0?6:4.5}" fill="${i===0?'#9A5B00':'#B91C1C'}" opacity="${op.toFixed(2)}"/>`;
+    if(i===0) s += `<text x="${cx}" y="${cy-12}" text-anchor="middle" font-size="10.5" fill="#9A5B00" font-weight="700">출발 x=4</text>`;
+  }
+  if(esc){
+    s += `<text x="${W-PADR-8}" y="${PADT+22}" text-anchor="end" font-size="13" fill="#B91C1C" font-weight="700">→ 화면 밖으로 튕겨나감</text>`;
+  }
+  $gs2.innerHTML = s;
+
+  // 판정
+  const last = path[path.length-1];
+  const diverged = !isFinite(last) || Math.abs(last) > Math.abs(path[0]);
+  const close = Math.abs(last) < 0.05;
+  let cls, msg;
+  if(diverged){
+    cls='no';
+    msg = `<b>발산했습니다.</b> 한 걸음이 너무 커서 바닥을 지나쳐 반대편으로 튕겼고, 튕길 때마다 더 멀리 갑니다. 손실이 줄기는커녕 폭발합니다.`;
+  } else if(close){
+    cls='ok';
+    msg = `<b>잘 도착했습니다.</b> 12걸음 만에 바닥(0)에 거의 닿았습니다 — 지금 x = ${last}.`;
+  } else if(Math.abs(last) < 1.2){
+    cls='ok';
+    msg = `<b>가고는 있습니다.</b> 12걸음 뒤 x = ${last} — 방향은 맞지만 아직 바닥이 아닙니다. 더 반복하면 도착합니다.`;
+  } else {
+    cls='';
+    msg = `<b>너무 느립니다.</b> 12걸음을 걸었는데 아직 x = ${last}입니다. 시작이 4였으니 거의 못 갔습니다.`;
+  }
+  if(lr === 1.0){
+    cls='no';
+    msg = `<b>제자리에서 튕기기만 합니다.</b> 4 → -4 → 4 → -4 … 정확히 반대편으로만 오가며 <b>영원히 바닥에 못 닿습니다.</b> 학습률이 딱 경계값일 때 벌어지는 일입니다.`;
+  }
+  $gdv.className = 'verdict ' + cls;
+  $gdv.innerHTML = msg;
+  $gdr.textContent = '걸음 자취: ' + path.slice(0,8).map(v=>isFinite(v)?v:'∞').join(' → ') + (path.length>8?' → …':'');
+}
+$lr.max = String(LRS.length - 1);        // 데이터가 늘면 슬라이더도 따라간다
+$lr.addEventListener('input', drawGD);
+drawGD();
+
+/* 자체 검증 — 학습률 6개가 «각각 다른» 결과를 내는지 확인한다.
+   위 버그(키 불일치)는 화면이 «안 바뀌는» 형태로 나타났으므로, 값이 아니라
+   «서로 다른가»를 본다. 같은 게 섞여 있으면 조회가 깨진 것이다. */
+(function selfTestGD(){
+  const seen = new Set(); const bad = [];
+  LRKEYS.forEach((k,i)=>{
+    const p = D.gd[k];
+    if(!Array.isArray(p)){ bad.push(k+' 자료없음'); return; }
+    const last = String(p[p.length-1]);
+    if(seen.has(k+'|'+last)) bad.push(k+' 중복');
+    seen.add(k+'|'+last);
+  });
+  // 1.0 은 제자리 왕복이어야 한다(|끝값| == |시작값|)
+  const one = LRKEYS.find(k=>parseFloat(k)===1);
+  if(one){ const p=D.gd[one];
+    if(Math.abs(Math.abs(p[p.length-1]) - 4) > 1e-6) bad.push('lr=1.0 이 왕복이 아님'); }
+  if(bad.length) console.warn('학습률 자체검증 실패:', bad);
+  window.__gdSelfTest = bad.length ? bad : 'ok';
+})();
+
+/* ─────────── 활성화 함수 곡선 ─────────── */
+const ACT = {
+  relu:    {c:'#1E3A5F', name:'ReLU',
+            msg:'<b>음수는 전부 0, 양수는 그대로.</b> 계산이 아주 단순해서 빠르고, 층 사이에 가장 많이 씁니다. 0에서 꺾이는 이 한 번의 «꺾임»이 곡선을 만들어냅니다.'},
+  sigmoid: {c:'#B91C1C', name:'Sigmoid',
+            msg:'<b>어떤 수를 넣어도 0과 1 사이로 눌러 담습니다.</b> 그래서 «확률»처럼 읽을 수 있습니다. 대신 양 끝이 납작해서 <b>기울기가 거의 0</b>이 되고, 층을 깊게 쌓으면 학습이 멈춥니다(기울기 소실).'},
+  tanh:    {c:'#16A34A', name:'Tanh',
+            msg:'<b>Sigmoid를 -1~1로 늘린 모양</b>입니다. 중심이 0이라 Sigmoid보다 학습이 안정적입니다. 양 끝이 납작한 문제는 그대로 있습니다.'}
+};
+const $as = document.getElementById('actsvg'), $av = document.getElementById('actv');
+let curAct = 'relu';
+
+function drawAct(){
+  const W=640,H=300,PADL=46,PADR=18,PADT=18,PADB=38;
+  const XMIN=-6,XMAX=6,YMIN=-1.3,YMAX=3.2;
+  const sx = x => PADL + (x-XMIN)/(XMAX-XMIN)*(W-PADL-PADR);
+  const sy = y => H-PADB - (y-YMIN)/(YMAX-YMIN)*(H-PADT-PADB);
+  let s='';
+  // 격자
+  for(let t=-1;t<=3;t++){
+    s += `<line x1="${PADL}" y1="${sy(t)}" x2="${W-PADR}" y2="${sy(t)}" stroke="${t===0?'#A3A3A3':'#EFEEE9'}" stroke-width="${t===0?1.2:1}"/>`;
+    s += `<text x="${PADL-8}" y="${sy(t)+4}" text-anchor="end" font-size="10" fill="#737373" font-family="monospace">${t}</text>`;
+  }
+  for(let t=-6;t<=6;t+=2){
+    s += `<line x1="${sx(t)}" y1="${PADT}" x2="${sx(t)}" y2="${H-PADB}" stroke="${t===0?'#A3A3A3':'#EFEEE9'}" stroke-width="${t===0?1.2:1}"/>`;
+    s += `<text x="${sx(t)}" y="${H-PADB+16}" text-anchor="middle" font-size="10" fill="#737373" font-family="monospace">${t}</text>`;
+  }
+  s += `<text x="${(PADL+W-PADR)/2}" y="${H-6}" text-anchor="middle" font-size="10.5" fill="#525252">들어온 값 (z)</text>`;
+
+  // 안 고른 곡선은 흐리게
+  Object.keys(ACT).forEach(k=>{
+    const on = k===curAct;
+    let d='';
+    D.act.x.forEach((x,i)=>{ d += (i?'L':'M') + sx(x).toFixed(1) + ',' + sy(D.act[k][i]).toFixed(1) + ' '; });
+    s += `<path d="${d}" fill="none" stroke="${ACT[k].c}" stroke-width="${on?2.6:1.2}" opacity="${on?1:.18}"/>`;
+  });
+  // 이름표
+  let ly = PADT+14;
+  Object.keys(ACT).forEach(k=>{
+    const on = k===curAct;
+    s += `<text x="${W-PADR-6}" y="${ly}" text-anchor="end" font-size="12" font-weight="${on?700:400}"
+          fill="${ACT[k].c}" opacity="${on?1:.3}">${ACT[k].name}</text>`;
+    ly += 17;
+  });
+  $as.innerHTML = s;
+  $av.className = 'verdict';
+  $av.innerHTML = ACT[curAct].msg;
+}
+document.querySelectorAll('#actchips .chip').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#actchips .chip').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); curAct = b.dataset.f; drawAct();
+  });
+});
+drawAct();
+
+/* ─────────── 학습 궤적 표 ─────────── */
+(function(){
+  const tb = document.querySelector('#fitTable tbody');
+  const rows = D.fit.filter((r,i)=> i===0 || i===1 || i===3 || i===6 || i===12 || i===D.fit.length-1);
+  tb.innerHTML = rows.map(r=>{
+    const near = Math.abs(r.w-2)<0.2 && Math.abs(r.b-1)<0.2;
+    const st = near ? '<span style="color:var(--good);font-weight:700">정답에 도달</span>'
+             : (r.loss>0.3 ? '<span style="color:var(--bad)">아직 많이 틀림</span>' : '가까워지는 중');
+    return `<tr><td class="n">${r.step}</td><td class="n">${r.w}</td><td class="n">${r.b}</td><td class="n">${r.loss}</td><td>${st}</td></tr>`;
+  }).join('');
+})();
+
+/* ─────────── 용어 사전 ─────────── */
+const GLOSS = [
+["텐서","tensor","숫자를 규칙적으로 담은 상자. 표·상자라고 생각하면 됩니다. 딥러닝의 모든 데이터가 이 형태입니다."],
+["모양","shape","각 방향으로 몇 개인지를 바깥부터 적은 것. (3,4)는 「3줄 × 4칸」. 오류의 절반이 여기서 납니다."],
+["차원","dimension, dim","괄호를 몇 겹 여는가. 숫자 하나는 0차원, 줄은 1차원, 표는 2차원."],
+["dtype","data type","숫자의 종류. float32(소수)는 계산용, int64/long(정수)는 정답 라벨용."],
+["가중치","weight, w","학습으로 찾아야 할 숫자. 입력이 결과에 얼마나 세게 영향을 주는지."],
+["편향","bias, b","학습으로 찾아야 할 숫자. 전체를 위아래로 옮기는 값. 중학교의 y절편."],
+["파라미터","parameter","가중치와 편향을 통틀어 부르는 말. 「학습되는 숫자들」."],
+["순전파","forward","지금 가지고 있는 값으로 답을 계산해 보는 것. 모델에 데이터를 넣는 단계."],
+["역전파","backward","답이 틀린 만큼을 거꾸로 되짚어, 각 가중치가 얼마나 책임 있는지 계산하는 것."],
+["기울기","gradient, grad","「이 값을 조금 키우면 결과가 얼마나 변하나」. 미분값. 어느 쪽으로 고쳐야 할지 알려줍니다."],
+["autograd","autograd","PyTorch가 미분을 자동으로 해주는 기능. requires_grad → backward() → .grad 3단계."],
+["손실","loss","예측이 정답과 얼마나 다른지를 숫자 하나로 나타낸 것. 이걸 줄이는 게 학습입니다."],
+["MSE","Mean Squared Error","평균제곱오차. 차이를 제곱해서 평균낸 값. 숫자를 맞히는 문제(회귀)에 씁니다."],
+["교차 엔트로피","Cross Entropy","분류 문제의 손실. 정답에 얼마나 확신했는지를 잽니다. PyTorch 것은 Softmax가 내장돼 있습니다."],
+["경사하강법","Gradient Descent","기울기를 보고 손실이 줄어드는 쪽으로 조금씩 옮기는 방법. 안개 속에서 산을 내려가는 것과 같습니다."],
+["학습률","learning rate, lr","한 걸음의 크기. 너무 작으면 느리고, 너무 크면 발산합니다."],
+["발산","divergence","값이 점점 커져 통제를 벗어나는 것. 학습률이 너무 클 때 생깁니다."],
+["수렴","convergence","값이 한 곳으로 안정되게 다가가는 것. 학습이 잘 됐다는 뜻."],
+["옵티마이저","optimizer","기울기를 받아 실제로 가중치를 옮기는 담당. SGD, Adam 등."],
+["SGD","Stochastic Gradient Descent","가장 단순한 옵티마이저. 기울기 방향으로 학습률만큼 그냥 갑니다."],
+["모멘텀","momentum","이전에 가던 방향의 관성을 얹는 것. 공이 굴러가듯 부드럽게 갑니다."],
+["Adam","Adam","관성 + 방향별 자동 보폭 조절. 실무 기본값. 대충 설정해도 잘 됩니다."],
+["에폭","epoch","전체 데이터를 한 바퀴 다 본 것. 100에폭 = 전체를 100번 훑음."],
+["배치","batch","한 번에 묶어서 처리하는 데이터 묶음."],
+["미니배치","mini-batch","전체를 작게 쪼갠 묶음(보통 32·64·128개). 빠르고 메모리를 덜 씁니다."],
+["DataLoader","DataLoader","데이터를 미니배치로 자동으로 잘라 주는 도구. shuffle로 순서도 섞습니다."],
+["활성화 함수","activation function","층 사이에 넣어 «구부리는» 장치. 없으면 층을 쌓아도 직선 하나와 같습니다."],
+["ReLU","Rectified Linear Unit","음수는 0, 양수는 그대로. 층 사이에 가장 많이 쓰는 활성화 함수."],
+["Sigmoid","sigmoid","어떤 수든 0~1로 눌러 담는 S자 곡선. 확률처럼 읽힙니다."],
+["Softmax","softmax","여러 숫자를 «합이 1인 확률»로 바꿉니다. 셋 이상 중 고르는 문제에 씁니다."],
+["Tanh","hyperbolic tangent","Sigmoid를 -1~1로 늘린 것. 중심이 0이라 좀 더 안정적."],
+["로짓","logits","활성화 함수를 거치지 않은 모델의 «날것» 출력. CrossEntropyLoss에는 이걸 넣습니다."],
+["층","layer","입력을 받아 출력을 내는 계산 한 덩어리. nn.Linear가 대표적."],
+["nn.Linear","Linear layer","ŷ = wx + b 를 여러 개 한꺼번에 하는 부품. (입력수, 출력수)로 만듭니다."],
+["nn.Module","Module","PyTorch에서 모델을 만드는 기본 틀. __init__에 부품, forward에 흐름을 적습니다."],
+["MLP","Multi-Layer Perceptron","다층 퍼셉트론. 선형 층과 활성화 함수를 번갈아 쌓은 가장 기본적인 신경망."],
+["은닉층","hidden layer","입력층과 출력층 사이의 층. 여기서 특징을 뽑아냅니다."],
+["브로드캐스팅","broadcasting","모양이 다른 텐서를 계산할 때 부족한 쪽을 자동 복사해 맞추는 것. 편하지만 조용히 틀리게 만드는 함정."],
+["행렬곱","matmul, @","줄과 칸을 곱해 더하는 계산. 신경망의 층 하나가 곧 행렬곱 하나입니다."],
+["원소별 곱","element-wise","같은 자리 숫자끼리 곱하는 것. * 기호. 행렬곱과 전혀 다릅니다."],
+["reshape","reshape, view","총 개수는 유지하고 담는 모양만 바꾸기."],
+["squeeze","squeeze","크기가 1인 차원을 없애기. 인자 없이 쓰면 전부 없앱니다."],
+["unsqueeze","unsqueeze","크기가 1인 차원을 하나 끼워 넣기."],
+["cat","concatenate","이어 붙이기. 차원 개수는 그대로."],
+["stack","stack","쌓기. 차원이 하나 늘어납니다."],
+["zero_grad","zero_grad","기울기를 0으로 지우기. 안 하면 계속 더해져 학습이 망가집니다."],
+["no_grad","no_grad","이 블록 안에서는 미분 기록을 안 남김. 가중치를 직접 고칠 때·평가할 때 씁니다."],
+["item","item()","텐서에서 파이썬 숫자 하나를 꺼내기. 손실을 기록할 때 씁니다."],
+["device","device","계산을 어디서 할지. cuda(GPU) 또는 cpu. 맥에는 cuda가 없어 cpu입니다."],
+["과적합","overfitting","훈련 데이터는 잘 맞히는데 새 데이터는 못 맞히는 상태. 문제집만 외운 것."],
+["정확도","accuracy","맞힌 개수 ÷ 전체. argmax로 고른 답과 정답을 비교해 구합니다."]
+];
+(function(){
+  const $g=document.getElementById('glist'), $s=document.getElementById('gs'), $c=document.getElementById('gc');
+  function render(q){
+    const t=(q||'').trim().toLowerCase();
+    const list = t ? GLOSS.filter(g => (g[0]+' '+g[1]+' '+g[2]).toLowerCase().includes(t)) : GLOSS;
+    $c.textContent = t ? `${list.length}개 / 전체 ${GLOSS.length}개` : `전체 ${GLOSS.length}개`;
+    $g.innerHTML = list.length
+      ? list.map(g=>`<div class="gitem"><span class="w">${g[0]}</span><span class="en">${g[1]}</span><div class="d">${g[2]}</div></div>`).join('')
+      : `<div class="gitem"><div class="d">「${q}」에 해당하는 용어가 없습니다.</div></div>`;
+  }
+  $s.addEventListener('input', ()=>render($s.value));
+  render('');
+})();
+</script>
+</div></body></html>

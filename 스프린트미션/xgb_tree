@@ -1,0 +1,45 @@
+0:[cat_transformer__Title_Mr<1] yes=1,no=2,missing=2
+	1:[cat_transformer__Pclass_3<1] yes=3,no=4,missing=4
+		3:[cat_transformer__Title_Rare<1] yes=7,no=8,missing=8
+			7:leaf=0.233571798
+			8:[cat_transformer__Deck_Unknown<1] yes=15,no=16,missing=16
+				15:leaf=0.152966425
+				16:leaf=-0.0938543305
+		4:[num_transformer__FamilySize<1.96266341] yes=9,no=10,missing=10
+			9:[num_transformer__Age<-0.340904206] yes=17,no=18,missing=18
+				17:[num_transformer__Age<-1.69883335] yes=27,no=28,missing=28
+					27:leaf=0.18144092
+					28:[num_transformer__Fare<-0.498154193] yes=39,no=40,missing=40
+						39:leaf=0.160956025
+						40:leaf=0.0144248679
+				18:[num_transformer__Age<0.488941371] yes=29,no=30,missing=30
+					29:[num_transformer__Age<0.224899605] yes=41,no=42,missing=42
+						41:leaf=0.00187073823
+						42:leaf=0.087236166
+					30:leaf=-0.0537763499
+			10:[num_transformer__FamilySize<3.22216439] yes=19,no=20,missing=20
+				19:leaf=-0.134995341
+				20:[num_transformer__Fare<0.0141628087] yes=31,no=32,missing=32
+					31:leaf=0.00492642913
+					32:leaf=-0.0951249003
+	2:[cat_transformer__Deck_Unknown<1] yes=5,no=6,missing=6
+		5:[num_transformer__Age<1.69598949] yes=11,no=12,missing=12
+			11:[num_transformer__Fare<-0.11597681] yes=21,no=22,missing=22
+				21:[num_transformer__Age<0.375780612] yes=33,no=34,missing=34
+					33:leaf=-0.0124277947
+					34:leaf=-0.0951249003
+				22:[num_transformer__Fare<-0.0113445576] yes=35,no=36,missing=36
+					35:leaf=0.115451157
+					36:[num_transformer__Fare<0.431738168] yes=43,no=44,missing=44
+						43:leaf=-0.101096623
+						44:leaf=0.0419210754
+			12:leaf=-0.0893676057
+		6:[num_transformer__Fare<0.431738168] yes=13,no=14,missing=14
+			13:[cat_transformer__Pclass_1<1] yes=23,no=24,missing=24
+				23:leaf=-0.121226646
+				24:[num_transformer__Fare<-0.100360058] yes=37,no=38,missing=38
+					37:leaf=0.0119030559
+					38:leaf=-0.101096623
+			14:[num_transformer__Fare<0.52283591] yes=25,no=26,missing=26
+				25:leaf=0.111617863
+				26:leaf=-0.117141388
